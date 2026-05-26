@@ -1,0 +1,21 @@
+[project]
+name = "brainrot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "accelerate>=1.2.0",
+    "datasets>=3.2.0",
+    "matplotlib>=3.10.8",
+    "miniaudio>=1.71",
+    "numpy>=2.0.0",
+    "pandas>=3.0.2",
+    "pyyaml>=6.0",
+    "scikit-learn>=1.8.0",
+    "scipy>=1.17.1",
+    "soundfile>=0.13.1",
+    "torch>=2.5.0",
+    "tqdm>=4.67.3",
+    "transformers>=5.8.1",
+]

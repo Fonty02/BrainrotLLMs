@@ -1,0 +1,56 @@
+# Steering experiment matrix configuration
+# All combinations of model × technique × layer_pct generate one HTCondor job
+
+common:
+  models:
+    - Qwen/Qwen2.5-7B-Instruct
+    - meta-llama/Llama-3.1-8B-Instruct
+    - google/gemma-4-E2B-it
+
+  techniques:
+    - dom
+    - pca
+    - aas
+
+  layer_pcts:
+    - 25
+    - 50
+    - 75
+
+  coefficients: "5,10,25,-5,-10,-25"
+
+  max_pairs: 2000
+
+  # HuggingFace token (set via environment or HTCondor)
+  # HF_TOKEN env var will be forwarded
+
+  # HuggingFace cache dir on shared filesystem
+  hf_cache_dir: /scratch/huggingface_cache
+
+  # Device for GPU jobs
+  device: cuda
+
+htc:
+  executable: run_steering.sh
+  output_dir: steering_submit_files
+  logs_dir: steering_logs
+
+  request_cpus: 10
+  request_gpus: 1
+  request_memory: 64GB
+  request_disk: 20GB
+
+  # Results go to a shared directory, each job gets its own CSV
+  results_dir: steering_results
+
+  # Send HF_TOKEN from environment
+  getenv: True
+
+  # Max jobs per submit file
+  max_jobs_per_file: 27
+
+  # HTCondor requirements (optional GPU class)
+  requirements: (TARGET.CUDACapability >= 7.0)
+
+# Optional: split questions across N workers per configuration
+q_slices: 1

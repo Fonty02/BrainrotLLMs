@@ -1,0 +1,44 @@
+# Judge configuration for HTCondor parallelization
+# Each job processes one input CSV (or a slice of it via --row_slice)
+
+common:
+  judge_model: google/gemma-4-E4B-it
+
+  # List of input CSVs to judge. Each entry can be:
+  #  - a simple path (e.g., steering_results/Qwen7B_dom_L50.csv)
+  #  - a glob pattern that expand_inputs.py resolves (e.g., "steering_results/*.csv")
+  input_csvs: []
+
+  # Alternative: auto-discover all CSVs in a directory
+  input_dir: steering_results
+
+  # Batch size for generation
+  batch_size: 16
+
+  # HF token (forwarded from environment)
+  # HF_TOKEN env var will be forwarded via getenv
+
+  hf_cache_dir: /scratch/huggingface_cache
+
+  device: cuda
+
+htc:
+  executable: run_judge.sh
+  output_dir: steering_submit_files
+  logs_dir: steering_logs
+
+  request_cpus: 8
+  request_gpus: 1
+  request_memory: 48GB
+  request_disk: 10GB
+
+  results_dir: steering_results
+
+  getenv: True
+
+  max_jobs_per_file: 30
+
+  requirements: (TARGET.CUDACapability >= 7.0)
+
+# Split each CSV's rows across N judge workers
+row_slices: 1
