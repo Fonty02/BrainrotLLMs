@@ -1,10 +1,9 @@
 universe = vanilla
-executable = run_steering.sh
+executable = steering_submit_files/run_steering.sh
 request_cpus = 8
 request_gpus = 1
-request_memory = 24000
+request_memory = 16000
 getenv = True
-requirements = (TARGET.CUDACapability >= 7.0)
 log = steering_logs/job_$(Cluster)_$(Process).log
 output = steering_logs/job_$(Cluster)_$(Process).out
 error = steering_logs/job_$(Cluster)_$(Process).err
