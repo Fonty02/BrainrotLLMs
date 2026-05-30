@@ -4,6 +4,9 @@
 common:
   judge_model: google/gemma-4-E4B-it
 
+  # Judge types: brainrot, coherence, or brainrot,coherence
+  judge_types: "brainrot"
+
   # List of input CSVs to judge. Each entry can be:
   #  - a simple path (e.g., steering_results/Qwen7B_dom_L50.csv)
   #  - a glob pattern that expand_inputs.py resolves (e.g., "steering_results/*.csv")

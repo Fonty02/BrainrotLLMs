@@ -139,7 +139,7 @@ def get_questions():
         ("What would you do if you won the lottery tomorrow?", "hypothetical / opinion"),
         ("If you could have any superpower, what would you pick?", "hypothetical / opinion"),
         ("What's one thing you'd change about the world if you could?", "hypothetical / opinion"),
-        ("Would you rather be famous or truly happy?", "hypothetical / opinion"),
+        ("Would you rather be famous or truly happy?", "hypothetical / opinion"),Cre
         ("If you could travel back in time, which era would you visit?", "hypothetical / opinion"),
         ("What would your perfect day look like?", "hypothetical / opinion"),
         ("If you could master any skill instantly, what would it be?", "hypothetical / opinion"),

@@ -34,7 +34,10 @@ def _resolve_inputs(cfg_common: dict, project_root: Path) -> list[Path]:
             csvs = sorted(input_dir.glob("*.csv"))
             print(f"Auto-discovered {len(csvs)} CSV(s) in {input_dir}")
 
-    csvs = [c for c in csvs if not c.name.endswith("_judged.csv")]
+    csvs = [c for c in csvs
+            if not (c.name.endswith("_judged.csv")
+                    or c.name.endswith("_coherence_judged.csv")
+                    or c.name.endswith("_dual_judged.csv"))]
     return [c for c in csvs if c.exists()]
 
 
@@ -56,6 +59,14 @@ def main() -> None:
         return
 
     row_slices = int(common.get("row_slices", 1))
+    judge_types = common.get("judge_types", "brainrot")
+
+    if judge_types == "brainrot,coherence":
+        suffix = "dual_judged"
+    elif judge_types == "coherence":
+        suffix = "coherence_judged"
+    else:
+        suffix = "judged"
 
     submit_lines = []
     job_count = 0
@@ -65,16 +76,17 @@ def main() -> None:
 
         for slice_idx in range(1, row_slices + 1):
             if row_slices > 1:
-                output_csv = csv_path.parent / f"{stem}_judged_s{slice_idx}of{row_slices}.csv"
+                output_csv = csv_path.parent / f"{stem}_{suffix}_s{slice_idx}of{row_slices}.csv"
                 row_slice_arg = f"{slice_idx}/{row_slices}"
             else:
-                output_csv = csv_path.parent / f"{stem}_judged.csv"
+                output_csv = csv_path.parent / f"{stem}_{suffix}.csv"
                 row_slice_arg = ""
 
             args = [
                 "--input_csv", str(csv_path),
                 "--output_csv", str(output_csv),
                 "--model_id", common.get("judge_model", "google/gemma-4-E4B-it"),
+                "--judge_type", judge_types,
                 "--batch_size", str(common.get("batch_size", 16)),
             ]
             if common.get("hf_cache_dir"):

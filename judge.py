@@ -35,6 +35,23 @@ Brainrot style is characterized by:
 
 Answer with ONLY the single word YES if the text is brainrot style, or NO if it is not. Do not explain."""
 
+COHERENCE_SYSTEM_PROMPT = """You are an expert evaluator of text quality and coherence.
+Your task is to determine whether a given response is coherent and logically consistent.
+
+A COHERENT response:
+- Follows a logical flow and stays on topic
+- Has clear connections between sentences
+- Addresses the question that was asked
+- Is understandable and makes sense as a whole
+
+An INCOHERENT response:
+- Jumps between unrelated ideas or is self-contradictory
+- Is garbled, nonsensical, or impossible to follow
+- Fails to address the original question
+- Contains broken grammar that obscures meaning
+
+Answer with ONLY the single word COHERENT if coherent, or INCOHERENT if not. Do not explain."""
+
 
 def parse_judge_response(response_text):
     answer = response_text.strip().upper()
@@ -46,6 +63,34 @@ def parse_judge_response(response_text):
         return -1
 
 
+def parse_coherence_response(response_text):
+    answer = response_text.strip().upper()
+    if "COHERENT" in answer:
+        return 1
+    elif "INCOHERENT" in answer:
+        return 0
+    else:
+        return -1
+
+
+def build_judge_prompt(question, response, judge_type):
+    if judge_type == "brainrot":
+        system = SYSTEM_PROMPT
+        user = (
+            f"Question that was asked: {question}\n\n"
+            f"Response to evaluate:\n{response}\n\n"
+            f"Is this response written in brainrot style?"
+        )
+    else:
+        system = COHERENCE_SYSTEM_PROMPT
+        user = (
+            f"Question that was asked: {question}\n\n"
+            f"Response to evaluate:\n{response}\n\n"
+            f"Is this response coherent and logically consistent?"
+        )
+    return system, user
+
+
 def main():
     parser = argparse.ArgumentParser(description="Brainrot Style Judge")
     parser.add_argument("--input_csv", required=True)
@@ -53,6 +98,7 @@ def main():
     parser.add_argument("--hf_token", required=True)
     parser.add_argument("--hf_cache_dir", default=None)
     parser.add_argument("--model_id", default="google/gemma-4-E4B-it")
+    parser.add_argument("--judge_type", default="brainrot", choices=["brainrot", "coherence", "brainrot,coherence"])
     parser.add_argument("--batch_size", type=int, default=16)
     parser.add_argument(
         "--row_slice",
@@ -102,7 +148,17 @@ def main():
         rows = all_rows
         print(f"Loaded {total_rows} rows from {args.input_csv}")
 
-    output_columns = input_columns + ["is_brainrot", "judge_model", "judge_raw_response"]
+    judge_types = [jt.strip() for jt in args.judge_type.split(",")]
+
+    if judge_types == ["brainrot"]:
+        output_columns = input_columns + ["is_brainrot", "judge_model", "judge_raw_response"]
+    elif judge_types == ["coherence"]:
+        output_columns = input_columns + ["is_coherent", "judge_model", "judge_raw_response"]
+    else:
+        output_columns = input_columns + [
+            "is_brainrot", "is_coherent", "judge_model",
+            "judge_brainrot_raw", "judge_coherence_raw",
+        ]
 
     file_exists = os.path.exists(args.output_csv)
     with open(args.output_csv, "a", newline="", encoding="utf-8") as f:
@@ -114,46 +170,58 @@ def main():
         for batch_start in tqdm(range(0, len(rows), batch_size), desc="Judging"):
             batch = rows[batch_start:batch_start + batch_size]
 
-            prompts = []
-            for row in batch:
-                user_prompt = f"""Question that was asked: {row['question']}
+            batch_results = {}
 
-Response to evaluate:
-{row['response']}
+            for jtype in judge_types:
+                prompts = []
+                for row in batch:
+                    system, user = build_judge_prompt(row["question"], row["response"], jtype)
+                    messages = [
+                        {"role": "system", "content": system},
+                        {"role": "user", "content": user},
+                    ]
+                    prompt = judge_tokenizer.apply_chat_template(
+                        messages, tokenize=False, add_generation_prompt=True
+                    )
+                    prompts.append(prompt)
 
-Is this response written in brainrot style?"""
-                messages = [
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": user_prompt},
-                ]
-                prompt = judge_tokenizer.apply_chat_template(
-                    messages, tokenize=False, add_generation_prompt=True
+                inputs = judge_tokenizer(
+                    prompts, return_tensors="pt", padding=True, truncation=True
                 )
-                prompts.append(prompt)
+                inputs = {k: v.to(judge_model.device) for k, v in inputs.items()}
 
-            inputs = judge_tokenizer(
-                prompts, return_tensors="pt", padding=True, truncation=True
-            )
-            inputs = {k: v.to(judge_model.device) for k, v in inputs.items()}
+                with torch.no_grad():
+                    output_ids = judge_model.generate(
+                        **inputs,
+                        max_new_tokens=5,
+                        temperature=None,
+                        do_sample=False,
+                    )
 
-            with torch.no_grad():
-                output_ids = judge_model.generate(
-                    **inputs,
-                    max_new_tokens=5,
-                    temperature=None,
-                    do_sample=False,
+                input_lens = inputs["input_ids"].shape[1]
+                responses = judge_tokenizer.batch_decode(
+                    output_ids[:, input_lens:], skip_special_tokens=True
                 )
+                batch_results[jtype] = responses
 
-            input_lens = inputs["input_ids"].shape[1]
-            responses = judge_tokenizer.batch_decode(
-                output_ids[:, input_lens:], skip_special_tokens=True
-            )
-
-            for row, raw_response in zip(batch, responses):
-                is_brainrot = parse_judge_response(raw_response)
-                row["is_brainrot"] = is_brainrot
+            for i, row in enumerate(batch):
                 row["judge_model"] = args.model_id
-                row["judge_raw_response"] = raw_response
+                if "brainrot" in judge_types:
+                    raw_br = batch_results["brainrot"][i]
+                    is_brainrot = parse_judge_response(raw_br)
+                    row["is_brainrot"] = is_brainrot
+                    if len(judge_types) == 2:
+                        row["judge_brainrot_raw"] = raw_br
+                    else:
+                        row["judge_raw_response"] = raw_br
+                if "coherence" in judge_types:
+                    raw_coh = batch_results["coherence"][i]
+                    is_coherent = parse_coherence_response(raw_coh)
+                    row["is_coherent"] = is_coherent
+                    if len(judge_types) == 2:
+                        row["judge_coherence_raw"] = raw_coh
+                    else:
+                        row["judge_raw_response"] = raw_coh
                 writer.writerow(row)
 
     print(f"Done! Judged results saved to {args.output_csv}")
