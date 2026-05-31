@@ -139,7 +139,7 @@ def get_questions():
         ("What would you do if you won the lottery tomorrow?", "hypothetical / opinion"),
         ("If you could have any superpower, what would you pick?", "hypothetical / opinion"),
         ("What's one thing you'd change about the world if you could?", "hypothetical / opinion"),
-        ("Would you rather be famous or truly happy?", "hypothetical / opinion"),Cre
+        ("Would you rather be famous or truly happy?", "hypothetical / opinion"),
         ("If you could travel back in time, which era would you visit?", "hypothetical / opinion"),
         ("What would your perfect day look like?", "hypothetical / opinion"),
         ("If you could master any skill instantly, what would it be?", "hypothetical / opinion"),
@@ -192,7 +192,16 @@ def make_steering_hook_aas(steering_vector, alpha):
 
 def detect_layers(model):
     if hasattr(model, 'model') and hasattr(model.model, 'layers'):
-        return model.model.layers
+        return model.model.layers, model.config.num_hidden_layers
+    if hasattr(model, 'language_model') and hasattr(model.language_model, 'model'):
+        if hasattr(model.language_model.model, 'layers'):
+            num_layers = model.config.get_text_config().num_hidden_layers
+            return model.language_model.model.layers, num_layers
+        if hasattr(model.language_model.model, 'decoder') and hasattr(model.language_model.model.decoder, 'layers'):
+            num_layers = model.config.get_text_config().num_hidden_layers
+            return model.language_model.model.decoder.layers, num_layers
+    if hasattr(model, 'text_model') and hasattr(model.text_model, 'decoder') and hasattr(model.text_model.decoder, 'layers'):
+        return model.text_model.decoder.layers, model.config.text_config.num_hidden_layers
     raise ValueError(f"Cannot find layers in model architecture: {type(model)}")
 
 
@@ -296,16 +305,28 @@ def compute_steering_vector(technique, pos_activations, neg_activations):
         raise ValueError(f"Unknown technique: {technique}")
 
 
+def build_messages(tokenizer, question, use_system=True):
+    if use_system:
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant. Answer the user's question."},
+            {"role": "user", "content": question},
+        ]
+        try:
+            prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+            return prompt
+        except Exception:
+            pass
+    messages = [{"role": "user", "content": question}]
+    return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+
+
 def generate_steered_response(
     model, tokenizer, layers, layer_idx, question, steering_vector, coefficient, technique
 ):
-    messages = [
-        {"role": "system", "content": "You are a helpful assistant. Answer the user's question."},
-        {"role": "user", "content": question},
-    ]
-    prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+    model_device = getattr(model, 'device', None) or next(model.parameters()).device
+    prompt = build_messages(tokenizer, question, use_system=True)
     inputs = tokenizer(prompt, return_tensors="pt")
-    inputs = {k: v.to(model.device) for k, v in inputs.items()}
+    inputs = {k: v.to(model_device) for k, v in inputs.items()}
 
     if technique == "aas":
         hook_fn = make_steering_hook_aas(steering_vector, coefficient)
@@ -404,9 +425,13 @@ def main():
 
     # Load model
     print(f"Loading model: {args.model}")
+    if torch.cuda.is_available() and torch.cuda.is_bf16_supported():
+        load_dtype = torch.bfloat16
+    else:
+        load_dtype = torch.float16
     model = AutoModelForCausalLM.from_pretrained(
         args.model,
-        torch_dtype=torch.float16,
+        torch_dtype=load_dtype,
         device_map="auto",
         token=args.hf_token,
         cache_dir=args.hf_cache_dir,
@@ -418,8 +443,7 @@ def main():
         cache_dir=args.hf_cache_dir,
     )
 
-    layers = detect_layers(model)
-    num_layers = model.config.num_hidden_layers
+    layers, num_layers = detect_layers(model)
 
     layer_key = f"{args.layer_pct}pct"
     layer_idx = int(num_layers * args.layer_pct / 100)
