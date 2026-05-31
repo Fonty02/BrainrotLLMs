@@ -194,7 +194,6 @@ def make_steering_hook_aas(steering_vector, alpha):
 
 def detect_layers(model):
     model_type = type(model).__name__
-    config = model.config
 
     def _get_num_layers(cfg):
         try:
@@ -205,38 +204,51 @@ def detect_layers(model):
             return cfg.text_config.num_hidden_layers
         if hasattr(cfg, "num_hidden_layers"):
             return cfg.num_hidden_layers
-        if hasattr(model, "language_model") and hasattr(model.language_model, "config"):
-            lm_cfg = model.language_model.config
-            if hasattr(lm_cfg, "num_hidden_layers"):
-                return lm_cfg.num_hidden_layers
         raise ValueError(f"Cannot find num_hidden_layers in config: {type(cfg)}")
 
     if hasattr(model, 'model') and hasattr(model.model, 'layers'):
-        return model.model.layers, _get_num_layers(config)
+        layers = model.model.layers
+        return layers, len(layers)
 
     if hasattr(model, 'language_model'):
         lm = model.language_model
+        try:
+            lm_num_layers = _get_num_layers(lm.config)
+        except Exception:
+            lm_num_layers = None
         if hasattr(lm, 'layers'):
-            return lm.layers, _get_num_layers(config)
+            layers = lm.layers
+            return layers, len(layers)
         if hasattr(lm, 'model') and hasattr(lm.model, 'layers'):
-            return lm.model.layers, _get_num_layers(config)
+            layers = lm.model.layers
+            return layers, len(layers)
         if hasattr(lm, 'model') and hasattr(lm.model, 'decoder') and hasattr(lm.model.decoder, 'layers'):
-            return lm.model.decoder.layers, _get_num_layers(config)
+            layers = lm.model.decoder.layers
+            return layers, len(layers)
 
     if hasattr(model, 'text_model') and hasattr(model.text_model, 'decoder') and hasattr(model.text_model.decoder, 'layers'):
-        return model.text_model.decoder.layers, _get_num_layers(config)
+        layers = model.text_model.decoder.layers
+        return layers, len(layers)
 
     if hasattr(model, 'model') and hasattr(model.model, 'decoder') and hasattr(model.model.decoder, 'layers'):
-        return model.model.decoder.layers, _get_num_layers(config)
+        layers = model.model.decoder.layers
+        return layers, len(layers)
 
     import torch.nn as nn
     for name, module in model.named_modules():
         if isinstance(module, nn.ModuleList) and len(module) > 0:
             first = module[0]
             if hasattr(first, 'self_attn') or hasattr(first, 'mlp'):
-                return module, _get_num_layers(config)
+                return module, len(module)
 
-    raise ValueError(f"Cannot find layers in model architecture: {model_type}")
+    try:
+        num_layers = _get_num_layers(model.config)
+    except ValueError:
+        num_layers = None
+    raise ValueError(
+        f"Cannot find layers in model architecture: {model_type}"
+        + (f" (config says {num_layers} layers, but no matching ModuleList found)" if num_layers else "")
+    )
 
 
 def extract_dataset_activations(model, tokenizer, dataset, layers, layer_indices, max_pairs, device):

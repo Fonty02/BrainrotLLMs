@@ -37,6 +37,11 @@ echo "Layer PCT: $LAYER_PCT"
 echo "Output:    $OUTPUT_CSV"
 echo "========================================"
 
+HF_TOKEN_ARG=""
+if [ -n "${HF_TOKEN:-}" ]; then
+    HF_TOKEN_ARG="--hf_token $HF_TOKEN"
+fi
+
 time python -u -W ignore steering_experiment.py \
     --model "$MODEL" \
     --technique "$TECHNIQUE" \
@@ -45,7 +50,8 @@ time python -u -W ignore steering_experiment.py \
     --device cuda \
     --max_pairs 2000 \
     --coefficients 5,10,25,-5,-10,-25 \
-    --hf_cache_dir /lustrehome/fonty/huggingface_cache
+    --hf_cache_dir /lustrehome/fonty/huggingface_cache \
+    $HF_TOKEN_ARG
 
 echo "========================================"
 echo "Completed: $MODEL | $TECHNIQUE | L$LAYER_PCT"
