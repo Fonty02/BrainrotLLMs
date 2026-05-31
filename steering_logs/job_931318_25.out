@@ -1,0 +1,11 @@
+========================================
+Brainrot Steering Experiment
+Model:     google/gemma-4-E2B-it
+Technique: aas
+Layer PCT: 50
+Output:    /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/gemma-4-E2B-it_aas_L50.csv
+========================================
+Using device: cuda
+Loading dataset...
+Loading model: google/gemma-4-E2B-it
+Model has 35 layers. Target: 50pct (index 17)

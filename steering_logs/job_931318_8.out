@@ -1,0 +1,87 @@
+========================================
+Brainrot Steering Experiment
+Model:     Qwen/Qwen2.5-7B-Instruct
+Technique: aas
+Layer PCT: 75
+Output:    /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/Qwen2.5-7B-Instruct_aas_L75.csv
+========================================
+Using device: cuda
+Loading dataset...
+Loading model: Qwen/Qwen2.5-7B-Instruct
+Model has 28 layers. Target: 75pct (index 21)
+Extracted activations from 2000 pairs
+Starting experiment loop: 6 coefficients × 100 questions = 600 generations
+Output CSV: /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/Qwen2.5-7B-Instruct_aas_L75.csv
+
+=== Layer 75pct (index 21) ===
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=5.0 Q1/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=5.0 Q10/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=5.0 Q20/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=5.0 Q30/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=5.0 Q40/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=5.0 Q50/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=5.0 Q60/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=5.0 Q70/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=5.0 Q80/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=5.0 Q90/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=5.0 Q100/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=10.0 Q1/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=10.0 Q10/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=10.0 Q20/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=10.0 Q30/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=10.0 Q40/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=10.0 Q50/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=10.0 Q60/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=10.0 Q70/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=10.0 Q80/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=10.0 Q90/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=10.0 Q100/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=25.0 Q1/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=25.0 Q10/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=25.0 Q20/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=25.0 Q30/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=25.0 Q40/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=25.0 Q50/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=25.0 Q60/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=25.0 Q70/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=25.0 Q80/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=25.0 Q90/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=25.0 Q100/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-5.0 Q1/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-5.0 Q10/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-5.0 Q20/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-5.0 Q30/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-5.0 Q40/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-5.0 Q50/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-5.0 Q60/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-5.0 Q70/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-5.0 Q80/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-5.0 Q90/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-5.0 Q100/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-10.0 Q1/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-10.0 Q10/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-10.0 Q20/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-10.0 Q30/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-10.0 Q40/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-10.0 Q50/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-10.0 Q60/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-10.0 Q70/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-10.0 Q80/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-10.0 Q90/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-10.0 Q100/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-25.0 Q1/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-25.0 Q10/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-25.0 Q20/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-25.0 Q30/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-25.0 Q40/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-25.0 Q50/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-25.0 Q60/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-25.0 Q70/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-25.0 Q80/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-25.0 Q90/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] layer=75pct coeff=-25.0 Q100/100
+
+Done! Results saved to /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/Qwen2.5-7B-Instruct_aas_L75.csv
+========================================
+Completed: Qwen/Qwen2.5-7B-Instruct | aas | L75
+========================================

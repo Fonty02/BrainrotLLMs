@@ -1,16 +1,0 @@
-Repo card metadata block was not found. Setting CardData to empty.
-[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
-Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Loading weights:  32%|███▏      | 616/1951 [00:00<00:00, 6158.86it/s]Loading weights:  63%|██████▎   | 1232/1951 [00:02<00:01, 435.10it/s]Loading weights: 100%|██████████| 1951/1951 [00:02<00:00, 797.21it/s]
-Traceback (most recent call last):
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 506, in <module>
-    main()
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 421, in main
-    layers = detect_layers(model)
-             ^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 196, in detect_layers
-    raise ValueError(f"Cannot find layers in model architecture: {type(model)}")
-ValueError: Cannot find layers in model architecture: <class 'transformers.models.gemma4.modeling_gemma4.Gemma4ForConditionalGeneration'>
-
-real	0m13.738s
-user	0m12.009s
-sys	0m11.334s
