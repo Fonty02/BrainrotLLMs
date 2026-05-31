@@ -27,7 +27,7 @@ import torch
 from datasets import load_dataset
 from sklearn.decomposition import PCA
 from tqdm import tqdm
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoProcessor, AutoTokenizer
 
 
 def set_seed(seed=42):
@@ -206,25 +206,25 @@ def detect_layers(model):
             return cfg.num_hidden_layers
         raise ValueError(f"Cannot find num_hidden_layers in config: {type(cfg)}")
 
-    if hasattr(model, 'model') and hasattr(model.model, 'layers'):
-        layers = model.model.layers
-        return layers, len(layers)
-
+    # Gemma-4 multimodal: text decoder layers are in language_model.decoder.layers
     if hasattr(model, 'language_model'):
         lm = model.language_model
-        try:
-            lm_num_layers = _get_num_layers(lm.config)
-        except Exception:
-            lm_num_layers = None
+        if hasattr(lm, 'decoder') and hasattr(lm.decoder, 'layers'):
+            layers = lm.decoder.layers
+            return layers, len(layers)
+        if hasattr(lm, 'model') and hasattr(lm.model, 'decoder') and hasattr(lm.model.decoder, 'layers'):
+            layers = lm.model.decoder.layers
+            return layers, len(layers)
         if hasattr(lm, 'layers'):
             layers = lm.layers
             return layers, len(layers)
         if hasattr(lm, 'model') and hasattr(lm.model, 'layers'):
             layers = lm.model.layers
             return layers, len(layers)
-        if hasattr(lm, 'model') and hasattr(lm.model, 'decoder') and hasattr(lm.model.decoder, 'layers'):
-            layers = lm.model.decoder.layers
-            return layers, len(layers)
+
+    if hasattr(model, 'model') and hasattr(model.model, 'layers'):
+        layers = model.model.layers
+        return layers, len(layers)
 
     if hasattr(model, 'text_model') and hasattr(model.text_model, 'decoder') and hasattr(model.text_model.decoder, 'layers'):
         layers = model.text_model.decoder.layers
@@ -251,7 +251,7 @@ def detect_layers(model):
     )
 
 
-def extract_dataset_activations(model, tokenizer, dataset, layers, layer_indices, max_pairs, device):
+def extract_dataset_activations(model, tokenizer, processor, dataset, layers, layer_indices, max_pairs, device):
     tokenizer.padding_side = "left"
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -269,24 +269,27 @@ def extract_dataset_activations(model, tokenizer, dataset, layers, layer_indices
 
         pos_texts = []
         neg_texts = []
+        template_fn = processor if processor is not None else tokenizer
+        chat_kwargs = {"tokenize": False, "add_generation_prompt": True}
+        if processor is not None:
+            chat_kwargs["enable_thinking"] = False
         for src, tgt in batch_pairs:
             neg_texts.append(
-                tokenizer.apply_chat_template(
+                template_fn.apply_chat_template(
                     [{"role": "user", "content": src}],
-                    tokenize=False,
-                    add_generation_prompt=True,
+                    **chat_kwargs,
                 )
             )
             pos_texts.append(
-                tokenizer.apply_chat_template(
+                template_fn.apply_chat_template(
                     [{"role": "user", "content": tgt}],
-                    tokenize=False,
-                    add_generation_prompt=True,
+                    **chat_kwargs,
                 )
             )
 
-        pos_enc = tokenizer(pos_texts, return_tensors="pt", padding=True, truncation=True)
-        neg_enc = tokenizer(neg_texts, return_tensors="pt", padding=True, truncation=True)
+        encode_fn = processor if processor is not None else tokenizer
+        pos_enc = encode_fn(text=pos_texts, return_tensors="pt", padding=True, truncation=True)
+        neg_enc = encode_fn(text=neg_texts, return_tensors="pt", padding=True, truncation=True)
         pos_enc = {k: v.to(device) for k, v in pos_enc.items()}
         neg_enc = {k: v.to(device) for k, v in neg_enc.items()}
 
@@ -355,27 +358,32 @@ def compute_steering_vector(technique, pos_activations, neg_activations):
         raise ValueError(f"Unknown technique: {technique}")
 
 
-def build_messages(tokenizer, question, use_system=True):
+def build_messages(tokenizer, processor, question, use_system=True):
+    template_fn = processor if processor is not None else tokenizer
+    chat_kwargs = {"tokenize": False, "add_generation_prompt": True}
+    if processor is not None:
+        chat_kwargs["enable_thinking"] = False
     if use_system:
         messages = [
             {"role": "system", "content": "You are a helpful assistant. Answer the user's question."},
             {"role": "user", "content": question},
         ]
         try:
-            prompt = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+            prompt = template_fn.apply_chat_template(messages, **chat_kwargs)
             return prompt
         except Exception:
             pass
     messages = [{"role": "user", "content": question}]
-    return tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+    return template_fn.apply_chat_template(messages, **chat_kwargs)
 
 
 def generate_steered_response(
-    model, tokenizer, layers, layer_idx, question, steering_vector, coefficient, technique
+    model, tokenizer, processor, layers, layer_idx, question, steering_vector, coefficient, technique
 ):
     model_device = getattr(model, 'device', None) or next(model.parameters()).device
-    prompt = build_messages(tokenizer, question, use_system=True)
-    inputs = tokenizer(prompt, return_tensors="pt")
+    prompt = build_messages(tokenizer, processor, question, use_system=True)
+    encode_fn = processor if processor is not None else tokenizer
+    inputs = encode_fn(text=prompt, return_tensors="pt")
     inputs = {k: v.to(model_device) for k, v in inputs.items()}
 
     if technique == "aas":
@@ -397,7 +405,8 @@ def generate_steered_response(
         handle.remove()
 
     input_len = inputs["input_ids"].shape[1]
-    response = tokenizer.decode(output_ids[0][input_len:], skip_special_tokens=True)
+    decode_fn = processor if processor is not None else tokenizer
+    response = decode_fn.decode(output_ids[0][input_len:], skip_special_tokens=True)
     return response
 
 
@@ -502,11 +511,22 @@ def main():
         cache_dir=args.hf_cache_dir,
     )
     model.eval()
-    tokenizer = AutoTokenizer.from_pretrained(
-        args.model,
-        token=args.hf_token,
-        cache_dir=args.hf_cache_dir,
-    )
+
+    is_gemma4 = "gemma-4" in args.model.lower() or "gemma4" in args.model.lower()
+    if is_gemma4:
+        processor = AutoProcessor.from_pretrained(
+            args.model,
+            token=args.hf_token,
+            cache_dir=args.hf_cache_dir,
+        )
+        tokenizer = processor.tokenizer
+    else:
+        processor = None
+        tokenizer = AutoTokenizer.from_pretrained(
+            args.model,
+            token=args.hf_token,
+            cache_dir=args.hf_cache_dir,
+        )
 
     layers, num_layers = detect_layers(model)
 
@@ -517,7 +537,7 @@ def main():
 
     max_pairs = args.max_pairs if args.max_pairs > 0 else len(ds)
     pos_acts, neg_acts, num_pairs = extract_dataset_activations(
-        model, tokenizer, ds, layers, layer_indices, max_pairs, device
+        model, tokenizer, processor, ds, layers, layer_indices, max_pairs, device
     )
     print(f"Extracted activations from {num_pairs} pairs")
 
@@ -557,7 +577,7 @@ def main():
             qid = qid_offset + (start if q_slice_total else 0)
             try:
                 response = generate_steered_response(
-                    model, tokenizer, layers, layer_idx,
+                    model, tokenizer, processor, layers, layer_idx,
                     question, steering_vector, coeff, args.technique,
                 )
             except Exception as e:
