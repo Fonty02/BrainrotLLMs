@@ -38,18 +38,6 @@ def set_seed(seed=42):
         torch.cuda.manual_seed_all(seed)
 
 
-def validate_cuda_usable():
-    if not torch.cuda.is_available():
-        return False
-    try:
-        t = torch.zeros(1).cuda()
-        del t
-        torch.cuda.synchronize()
-        return True
-    except Exception:
-        return False
-
-
 def get_questions():
     """Returns list of (question, category) tuples."""
     return [
@@ -418,8 +406,7 @@ def main():
     if args.layer_pct not in (25, 50, 75):
         parser.error("--layer_pct must be 25, 50, or 75")
 
-    cuda_usable = validate_cuda_usable()
-    device = args.device or ("cuda" if cuda_usable else "cpu")
+    device = args.device or ("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
     set_seed(42)
@@ -448,7 +435,7 @@ def main():
 
     # Load model
     print(f"Loading model: {args.model}")
-    if cuda_usable and torch.cuda.is_bf16_supported():
+    if torch.cuda.is_available() and torch.cuda.is_bf16_supported():
         load_dtype = torch.bfloat16
     else:
         load_dtype = torch.float16
@@ -469,9 +456,9 @@ def main():
             raise
 
     model = load_model_with_retry(
-        args.model,
+        pretrained_model_name_or_path=args.model,
         dtype=load_dtype,
-        device_map="auto" if cuda_usable else None,
+        device_map="auto" if torch.cuda.is_available() else None,
         token=args.hf_token,
         cache_dir=args.hf_cache_dir,
     )
