@@ -194,24 +194,48 @@ def make_steering_hook_aas(steering_vector, alpha):
 
 def detect_layers(model):
     model_type = type(model).__name__
+    config = model.config
+
+    def _get_num_layers(cfg):
+        try:
+            return cfg.get_text_config().num_hidden_layers
+        except Exception:
+            pass
+        if hasattr(cfg, "text_config") and hasattr(cfg.text_config, "num_hidden_layers"):
+            return cfg.text_config.num_hidden_layers
+        if hasattr(cfg, "num_hidden_layers"):
+            return cfg.num_hidden_layers
+        if hasattr(model, "language_model") and hasattr(model.language_model, "config"):
+            lm_cfg = model.language_model.config
+            if hasattr(lm_cfg, "num_hidden_layers"):
+                return lm_cfg.num_hidden_layers
+        raise ValueError(f"Cannot find num_hidden_layers in config: {type(cfg)}")
+
     if hasattr(model, 'model') and hasattr(model.model, 'layers'):
-        return model.model.layers, model.config.num_hidden_layers
+        return model.model.layers, _get_num_layers(config)
+
     if hasattr(model, 'language_model'):
         lm = model.language_model
         if hasattr(lm, 'layers'):
-            num_layers = model.config.get_text_config().num_hidden_layers
-            return lm.layers, num_layers
-        if hasattr(lm, 'model'):
-            if hasattr(lm.model, 'layers'):
-                num_layers = model.config.get_text_config().num_hidden_layers
-                return lm.model.layers, num_layers
-            if hasattr(lm.model, 'decoder') and hasattr(lm.model.decoder, 'layers'):
-                num_layers = model.config.get_text_config().num_hidden_layers
-                return lm.model.decoder.layers, num_layers
+            return lm.layers, _get_num_layers(config)
+        if hasattr(lm, 'model') and hasattr(lm.model, 'layers'):
+            return lm.model.layers, _get_num_layers(config)
+        if hasattr(lm, 'model') and hasattr(lm.model, 'decoder') and hasattr(lm.model.decoder, 'layers'):
+            return lm.model.decoder.layers, _get_num_layers(config)
+
     if hasattr(model, 'text_model') and hasattr(model.text_model, 'decoder') and hasattr(model.text_model.decoder, 'layers'):
-        return model.text_model.decoder.layers, model.config.text_config.num_hidden_layers
+        return model.text_model.decoder.layers, _get_num_layers(config)
+
     if hasattr(model, 'model') and hasattr(model.model, 'decoder') and hasattr(model.model.decoder, 'layers'):
-        return model.model.decoder.layers, model.config.num_hidden_layers
+        return model.model.decoder.layers, _get_num_layers(config)
+
+    import torch.nn as nn
+    for name, module in model.named_modules():
+        if isinstance(module, nn.ModuleList) and len(module) > 0:
+            first = module[0]
+            if hasattr(first, 'self_attn') or hasattr(first, 'mlp'):
+                return module, _get_num_layers(config)
+
     raise ValueError(f"Cannot find layers in model architecture: {model_type}")
 
 
@@ -272,7 +296,11 @@ def extract_dataset_activations(model, tokenizer, dataset, layers, layer_indices
             neg_activations[layer_key].append(storage[layer_key].cpu())
 
         del pos_enc, neg_enc
-        if device.type == "cuda":
+        if isinstance(device, torch.device):
+            is_cuda = device.type == "cuda"
+        else:
+            is_cuda = str(device) == "cuda"
+        if is_cuda:
             torch.cuda.empty_cache()
 
     for lk in layer_indices:
@@ -447,11 +475,10 @@ def main():
             if "JSONDecodeError" in str(e) and kwargs.get("cache_dir"):
                 cache = Path(kwargs["cache_dir"])
                 model_slug = args.model.replace("/", "--")
-                for corrupt_dir in cache.glob(f"models--{model_slug}*/**"):
+                for corrupt_dir in cache.glob(f"models--{model_slug}*"):
                     if corrupt_dir.is_dir():
                         print(f"Corrupted cache detected. Clearing: {corrupt_dir}")
                         shutil.rmtree(corrupt_dir)
-                        break
                 return AutoModelForCausalLM.from_pretrained(**kwargs)
             raise
 
