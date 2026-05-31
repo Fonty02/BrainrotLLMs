@@ -1,0 +1,18 @@
+Repo card metadata block was not found. Setting CardData to empty.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:00<04:45,  1.18it/s]Loading weights:  12%|█▏        | 40/339 [00:00<00:05, 55.49it/s]Loading weights:  17%|█▋        | 59/339 [00:01<00:03, 75.60it/s]Loading weights:  23%|██▎       | 77/339 [00:01<00:03, 76.73it/s]Loading weights:  27%|██▋       | 91/339 [00:01<00:03, 82.55it/s]Loading weights:  33%|███▎      | 112/339 [00:01<00:02, 98.75it/s]Loading weights:  37%|███▋      | 126/339 [00:01<00:02, 98.98it/s]Loading weights:  44%|████▎     | 148/339 [00:01<00:01, 102.12it/s]Loading weights:  47%|████▋     | 160/339 [00:02<00:01, 105.44it/s]Loading weights:  51%|█████     | 173/339 [00:02<00:01, 99.15it/s] Loading weights:  55%|█████▍    | 186/339 [00:02<00:01, 100.95it/s]Loading weights:  61%|██████▏   | 208/339 [00:02<00:01, 106.84it/s]Loading weights:  65%|██████▌   | 222/339 [00:02<00:01, 109.61it/s]Loading weights:  69%|██████▉   | 234/339 [00:02<00:00, 105.21it/s]Loading weights:  76%|███████▌  | 256/339 [00:02<00:00, 111.67it/s]Loading weights:  79%|███████▉  | 268/339 [00:03<00:00, 112.86it/s]Loading weights:  83%|████████▎ | 280/339 [00:03<00:00, 112.48it/s]Loading weights:  86%|████████▌ | 292/339 [00:03<00:00, 110.60it/s]Loading weights:  90%|████████▉ | 305/339 [00:03<00:00, 104.86it/s]Loading weights:  94%|█████████▍| 318/339 [00:03<00:00, 101.69it/s]Loading weights: 100%|██████████| 339/339 [00:03<00:00, 94.65it/s] 
+Extracting activations:   0%|          | 0/250 [00:00<?, ?it/s]Extracting activations:   0%|          | 0/250 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 506, in <module>
+    main()
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 430, in main
+    pos_acts, neg_acts, num_pairs = extract_dataset_activations(
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 256, in extract_dataset_activations
+    if device.type == "cuda":
+       ^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'type'
+
+real	0m18.501s
+user	0m13.396s
+sys	0m16.940s

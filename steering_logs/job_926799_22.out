@@ -1,0 +1,10 @@
+========================================
+Brainrot Steering Experiment
+Model:     google/gemma-4-E2B-it
+Technique: pca
+Layer PCT: 50
+Output:    /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/gemma-4-E2B-it_pca_L50.csv
+========================================
+Using device: cuda
+Loading dataset...
+Loading model: google/gemma-4-E2B-it

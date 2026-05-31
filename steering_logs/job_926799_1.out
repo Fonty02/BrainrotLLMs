@@ -1,0 +1,11 @@
+========================================
+Brainrot Steering Experiment
+Model:     Qwen/Qwen2.5-7B-Instruct
+Technique: dom
+Layer PCT: 50
+Output:    /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/Qwen2.5-7B-Instruct_dom_L50.csv
+========================================
+Using device: cuda
+Loading dataset...
+Loading model: Qwen/Qwen2.5-7B-Instruct
+Model has 28 layers. Target: 50pct (index 14)

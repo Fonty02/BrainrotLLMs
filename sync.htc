@@ -1,0 +1,7 @@
+executable = sync.sh
+output     = sync.out
+error      = sync.err
+log        = sync.log
+request_memory = 8192
+request_cpus   = 4
+queue

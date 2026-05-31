@@ -1,0 +1,18 @@
+Repo card metadata block was not found. Setting CardData to empty.
+[transformers] `torch_dtype` is deprecated! Use `dtype` instead!
+Loading weights:   0%|          | 0/339 [00:00<?, ?it/s]Loading weights:   0%|          | 1/339 [00:01<06:22,  1.13s/it]Loading weights:   1%|          | 2/339 [00:01<03:06,  1.80it/s]Loading weights:  12%|█▏        | 40/339 [00:01<00:06, 46.02it/s]Loading weights:  15%|█▌        | 52/339 [00:01<00:05, 55.68it/s]Loading weights:  18%|█▊        | 62/339 [00:01<00:04, 62.82it/s]Loading weights:  21%|██        | 72/339 [00:01<00:04, 61.38it/s]Loading weights:  25%|██▍       | 84/339 [00:01<00:03, 71.98it/s]Loading weights:  28%|██▊       | 94/339 [00:02<00:03, 62.32it/s]Loading weights:  30%|███       | 102/339 [00:02<00:03, 60.61it/s]Loading weights:  33%|███▎      | 112/339 [00:02<00:03, 62.65it/s]Loading weights:  35%|███▌      | 120/339 [00:02<00:03, 64.98it/s]Loading weights:  39%|███▉      | 132/339 [00:02<00:02, 73.41it/s]Loading weights:  41%|████▏     | 140/339 [00:02<00:02, 67.37it/s]Loading weights:  44%|████▎     | 148/339 [00:03<00:03, 62.67it/s]Loading weights:  47%|████▋     | 160/339 [00:03<00:02, 68.40it/s]Loading weights:  51%|█████     | 172/339 [00:03<00:02, 60.94it/s]Loading weights:  54%|█████▍    | 184/339 [00:03<00:02, 66.57it/s]Loading weights:  58%|█████▊    | 196/339 [00:03<00:02, 62.34it/s]Loading weights:  61%|██████▏   | 208/339 [00:03<00:02, 61.02it/s]Loading weights:  65%|██████▌   | 221/339 [00:04<00:01, 64.05it/s]Loading weights:  68%|██████▊   | 230/339 [00:04<00:01, 68.38it/s]Loading weights:  72%|███████▏  | 244/339 [00:04<00:01, 68.01it/s]Loading weights:  76%|███████▌  | 256/339 [00:04<00:01, 65.84it/s]Loading weights:  79%|███████▉  | 268/339 [00:04<00:01, 69.46it/s]Loading weights:  83%|████████▎ | 280/339 [00:04<00:00, 76.59it/s]Loading weights:  85%|████████▌ | 289/339 [00:05<00:00, 70.26it/s]Loading weights:  88%|████████▊ | 297/339 [00:05<00:00, 63.85it/s]Loading weights:  90%|█████████ | 306/339 [00:05<00:00, 68.80it/s]Loading weights:  93%|█████████▎| 316/339 [00:05<00:00, 71.46it/s]Loading weights:  96%|█████████▌| 324/339 [00:05<00:00, 67.26it/s]Loading weights: 100%|██████████| 339/339 [00:05<00:00, 59.42it/s]
+Extracting activations:   0%|          | 0/250 [00:00<?, ?it/s]Extracting activations:   0%|          | 0/250 [00:00<?, ?it/s]
+Traceback (most recent call last):
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 506, in <module>
+    main()
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 430, in main
+    pos_acts, neg_acts, num_pairs = extract_dataset_activations(
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 256, in extract_dataset_activations
+    if device.type == "cuda":
+       ^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'type'
+
+real	0m29.748s
+user	0m21.683s
+sys	0m29.151s
