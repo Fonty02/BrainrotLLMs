@@ -17,8 +17,10 @@ import argparse
 import csv
 import os
 import random
+import shutil
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -34,6 +36,18 @@ def set_seed(seed=42):
     torch.manual_seed(seed)
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
+
+
+def validate_cuda_usable():
+    if not torch.cuda.is_available():
+        return False
+    try:
+        t = torch.zeros(1).cuda()
+        del t
+        torch.cuda.synchronize()
+        return True
+    except Exception:
+        return False
 
 
 def get_questions():
@@ -191,18 +205,26 @@ def make_steering_hook_aas(steering_vector, alpha):
 
 
 def detect_layers(model):
+    model_type = type(model).__name__
     if hasattr(model, 'model') and hasattr(model.model, 'layers'):
         return model.model.layers, model.config.num_hidden_layers
-    if hasattr(model, 'language_model') and hasattr(model.language_model, 'model'):
-        if hasattr(model.language_model.model, 'layers'):
+    if hasattr(model, 'language_model'):
+        lm = model.language_model
+        if hasattr(lm, 'layers'):
             num_layers = model.config.get_text_config().num_hidden_layers
-            return model.language_model.model.layers, num_layers
-        if hasattr(model.language_model.model, 'decoder') and hasattr(model.language_model.model.decoder, 'layers'):
-            num_layers = model.config.get_text_config().num_hidden_layers
-            return model.language_model.model.decoder.layers, num_layers
+            return lm.layers, num_layers
+        if hasattr(lm, 'model'):
+            if hasattr(lm.model, 'layers'):
+                num_layers = model.config.get_text_config().num_hidden_layers
+                return lm.model.layers, num_layers
+            if hasattr(lm.model, 'decoder') and hasattr(lm.model.decoder, 'layers'):
+                num_layers = model.config.get_text_config().num_hidden_layers
+                return lm.model.decoder.layers, num_layers
     if hasattr(model, 'text_model') and hasattr(model.text_model, 'decoder') and hasattr(model.text_model.decoder, 'layers'):
         return model.text_model.decoder.layers, model.config.text_config.num_hidden_layers
-    raise ValueError(f"Cannot find layers in model architecture: {type(model)}")
+    if hasattr(model, 'model') and hasattr(model.model, 'decoder') and hasattr(model.model.decoder, 'layers'):
+        return model.model.decoder.layers, model.config.num_hidden_layers
+    raise ValueError(f"Cannot find layers in model architecture: {model_type}")
 
 
 def extract_dataset_activations(model, tokenizer, dataset, layers, layer_indices, max_pairs, device):
@@ -396,7 +418,8 @@ def main():
     if args.layer_pct not in (25, 50, 75):
         parser.error("--layer_pct must be 25, 50, or 75")
 
-    device = args.device or ("cuda" if torch.cuda.is_available() else "cpu")
+    cuda_usable = validate_cuda_usable()
+    device = args.device or ("cuda" if cuda_usable else "cpu")
     print(f"Using device: {device}")
 
     set_seed(42)
@@ -425,14 +448,30 @@ def main():
 
     # Load model
     print(f"Loading model: {args.model}")
-    if torch.cuda.is_available() and torch.cuda.is_bf16_supported():
+    if cuda_usable and torch.cuda.is_bf16_supported():
         load_dtype = torch.bfloat16
     else:
         load_dtype = torch.float16
-    model = AutoModelForCausalLM.from_pretrained(
+
+    def load_model_with_retry(**kwargs):
+        try:
+            return AutoModelForCausalLM.from_pretrained(**kwargs)
+        except Exception as e:
+            if "JSONDecodeError" in str(e) and kwargs.get("cache_dir"):
+                cache = Path(kwargs["cache_dir"])
+                model_slug = args.model.replace("/", "--")
+                for corrupt_dir in cache.glob(f"models--{model_slug}*/**"):
+                    if corrupt_dir.is_dir():
+                        print(f"Corrupted cache detected. Clearing: {corrupt_dir}")
+                        shutil.rmtree(corrupt_dir)
+                        break
+                return AutoModelForCausalLM.from_pretrained(**kwargs)
+            raise
+
+    model = load_model_with_retry(
         args.model,
-        torch_dtype=load_dtype,
-        device_map="auto",
+        dtype=load_dtype,
+        device_map="auto" if cuda_usable else None,
         token=args.hf_token,
         cache_dir=args.hf_cache_dir,
     )

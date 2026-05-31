@@ -7,7 +7,6 @@ log = steering_logs/job_$(Cluster)_$(Process).log
 output = steering_logs/job_$(Cluster)_$(Process).out
 error = steering_logs/job_$(Cluster)_$(Process).err
 getenv=True
-
 arguments = "$(MODEL) $(TECHNIQUE) $(LAYER_PCT)"
 queue MODEL, TECHNIQUE, LAYER_PCT from (
   Qwen/Qwen2.5-7B-Instruct dom 25
