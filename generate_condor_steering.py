@@ -70,8 +70,24 @@ def main() -> None:
                         "--output_csv", str(csv_path),
                         "--device", common.get("device", "cuda"),
                         "--max_pairs", str(common.get("max_pairs", 2000)),
-                        "--coefficients", common.get("coefficients", "5,10,25,-5,-10,-25"),
+                        "--layer_band", str(common.get("layer_band", 0)),
+                        "--repetition_penalty", str(common.get("repetition_penalty", 1.3)),
+                        "--max_new_tokens", str(common.get("max_new_tokens", 200)),
                     ]
+
+                    # Per-technique coefficients (fall back to legacy single key,
+                    # then to the script's per-technique defaults).
+                    coeffs_by_tech = common.get("coefficients_by_technique", {}) or {}
+                    coeff_val = coeffs_by_tech.get(technique, common.get("coefficients"))
+                    if coeff_val:
+                        args.extend(["--coefficients", coeff_val])
+
+                    if common.get("do_sample"):
+                        args.extend([
+                            "--do_sample",
+                            "--temperature", str(common.get("temperature", 0.8)),
+                            "--top_p", str(common.get("top_p", 0.9)),
+                        ])
                     if common.get("hf_cache_dir"):
                         args.extend(["--hf_cache_dir", common["hf_cache_dir"]])
                     if common.get("hf_token"):

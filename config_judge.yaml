@@ -5,7 +5,10 @@ common:
   judge_model: google/gemma-4-E4B-it
 
   # Judge types: brainrot, coherence, or brainrot,coherence
-  judge_types: "brainrot"
+  # Run BOTH so the analysis can report the real metric — "coherent brainrot" —
+  # instead of being fooled by degenerate gibberish the brainrot judge alone
+  # scores as YES.
+  judge_types: "brainrot,coherence"
 
   # List of input CSVs to judge. Each entry can be:
   #  - a simple path (e.g., steering_results/Qwen7B_dom_L50.csv)

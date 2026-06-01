@@ -17,7 +17,26 @@ common:
     - 50
     - 75
 
-  coefficients: "5,10,25,-5,-10,-25"
+  # Coefficient grids are now per-technique because the units differ:
+  #   dom/pca → multiples of the natural brainrot−normal difference vector
+  #             (comparable across layers/models regardless of residual scale)
+  #   aas     → rotation angle in degrees
+  # Leave coefficients_by_technique empty to fall back to the script defaults.
+  coefficients_by_technique:
+    dom: "1,2,3,4,-2,-4"
+    pca: "1,2,3,4,-2,-4"
+    aas: "15,25,35,45,-25,-45"
+
+  # Steer a band of layers around the target (0 = single layer).
+  layer_band: 0
+
+  # Decoding: greedy by default. Set do_sample: true to reduce repetition
+  # collapse and get more natural style (less reproducible).
+  do_sample: false
+  temperature: 0.8
+  top_p: 0.9
+  repetition_penalty: 1.3
+  max_new_tokens: 200
 
   max_pairs: 2000
 

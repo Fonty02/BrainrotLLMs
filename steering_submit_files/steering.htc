@@ -9,7 +9,31 @@ output = steering_logs/job_$(Cluster)_$(Process).out
 error = steering_logs/job_$(Cluster)_$(Process).err
 arguments = "$(MODEL) $(TECHNIQUE) $(LAYER_PCT)"
 queue MODEL, TECHNIQUE, LAYER_PCT from (
+  meta-llama/Llama-3.1-8B-Instruct dom 25
+  meta-llama/Llama-3.1-8B-Instruct dom 50
+  meta-llama/Llama-3.1-8B-Instruct dom 75
   meta-llama/Llama-3.1-8B-Instruct pca 25
   meta-llama/Llama-3.1-8B-Instruct pca 50
   meta-llama/Llama-3.1-8B-Instruct pca 75
+  meta-llama/Llama-3.1-8B-Instruct aas 25
+  meta-llama/Llama-3.1-8B-Instruct aas 50
+  meta-llama/Llama-3.1-8B-Instruct aas 75
+  Qwen/Qwen2.5-7B-Instruct dom 25
+  Qwen/Qwen2.5-7B-Instruct dom 50
+  Qwen/Qwen2.5-7B-Instruct dom 75
+  Qwen/Qwen2.5-7B-Instruct pca 25
+  Qwen/Qwen2.5-7B-Instruct pca 50
+  Qwen/Qwen2.5-7B-Instruct pca 75
+  Qwen/Qwen2.5-7B-Instruct aas 25
+  Qwen/Qwen2.5-7B-Instruct aas 50
+  Qwen/Qwen2.5-7B-Instruct aas 75
+  google/gemma-4-E2B-it dom 25
+  google/gemma-4-E2B-it dom 50
+  google/gemma-4-E2B-it dom 75
+  google/gemma-4-E2B-it pca 25
+  google/gemma-4-E2B-it pca 50
+  google/gemma-4-E2B-it pca 75
+  google/gemma-4-E2B-it aas 25
+  google/gemma-4-E2B-it aas 50
+  google/gemma-4-E2B-it aas 75
 )

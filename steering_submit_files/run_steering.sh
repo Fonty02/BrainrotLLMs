@@ -43,6 +43,11 @@ if [ -n "${HF_TOKEN:-}" ]; then
     HF_TOKEN_ARG="--hf_token $HF_TOKEN"
 fi
 
+# NOTE: --coefficients is intentionally NOT passed, so steering_experiment.py
+# uses its per-technique defaults (dom/pca = multiples of the natural style
+# difference: 1,2,3,4,-2,-4 ; aas = degrees: 15,25,35,45,-25,-45).
+# To override for one run, pass a 4th positional arg via the .htc table and add
+# `--coefficients "$4"` below.
 time python -u -W ignore steering_experiment.py \
     --model "$MODEL" \
     --technique "$TECHNIQUE" \
@@ -50,7 +55,9 @@ time python -u -W ignore steering_experiment.py \
     --output_csv "$OUTPUT_CSV" \
     --device cuda \
     --max_pairs 2000 \
-    --coefficients 5,10,25,-5,-10,-25 \
+    --layer_band 0 \
+    --repetition_penalty 1.3 \
+    --max_new_tokens 200 \
     --hf_cache_dir /lustrehome/fonty/huggingface_cache \
     $HF_TOKEN_ARG
 

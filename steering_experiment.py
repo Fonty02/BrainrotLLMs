@@ -152,23 +152,61 @@ def get_questions():
     ]
 
 
+# Fixed, neutral carrier turn used when extracting the *output-side* style
+# vector. Its only job is to put the style-bearing text in the assistant
+# position; since it is identical for the positive and negative member of
+# every pair, its contribution cancels in the mean difference.
+STYLE_PROBE_PROMPT = "Tell me something."
+
+
 def get_activation_hook(storage_dict, layer_key):
+    """Capture the FULL hidden state [B, T, D] so the caller can mean-pool over
+    the assistant-content tokens (style is distributed across the response, not
+    concentrated on the last token)."""
     def hook(module, input, output):
         try:
             hidden = output[0] if isinstance(output, tuple) else output
             if not isinstance(hidden, torch.Tensor):
                 raise TypeError(f"Expected tensor, got {type(hidden)}")
-            storage_dict[layer_key] = hidden[:, -1, :].detach().float()
+            storage_dict[layer_key] = hidden.detach().float()
         except Exception as e:
             storage_dict[f"__error_{layer_key}"] = str(e)
     return hook
 
 
-def make_steering_hook_dom_pca(steering_vector, alpha):
+def pool_content(hidden, attention_mask, prefix_len, trim_end=1):
+    """Mean-pool hidden states over the assistant-content tokens only.
+
+    Inputs are LEFT-padded, so for each row the real tokens occupy the rightmost
+    `real_len` positions, laid out as [prefix tokens][assistant content][eot].
+    `prefix_len` is constant (the carrier prompt is fixed), so the content span
+    is the last `real_len - prefix_len` real positions; we trim the trailing
+    end-of-turn token.
+    """
+    B, T, D = hidden.shape
+    real_lens = attention_mask.sum(dim=1)
+    pooled = []
+    for i in range(B):
+        rl = int(real_lens[i].item())
+        cl = rl - prefix_len
+        if cl <= 1:
+            start, end = T - rl, T  # fallback: pool all real tokens
+        else:
+            start = T - cl
+            end = T - trim_end if cl > trim_end else T
+        pooled.append(hidden[i, start:end, :].mean(dim=0))
+    return torch.stack(pooled, dim=0).float()
+
+
+def make_steering_hook_dom_pca(steering_vector, coeff):
+    """Additive steering. `steering_vector` already carries the natural per-layer
+    style-shift magnitude (see compute_steering_vector), so `coeff` is a
+    *multiple of the average brainrot−normal difference* — comparable across
+    layers and models regardless of residual-stream scale."""
     def hook(module, input, output):
         hidden = output[0] if isinstance(output, tuple) else output
-        sv = steering_vector.to(hidden.device)
-        hidden[:, -1, :] += alpha * sv
+        sv = steering_vector.to(hidden.device, hidden.dtype)
+        hidden[:, -1, :] = hidden[:, -1, :] + coeff * sv
         if isinstance(output, tuple):
             return (hidden,) + output[1:]
         return hidden
@@ -179,7 +217,7 @@ def aas_steer(h, steering_vector, alpha_degrees):
     h_last = h[:, -1, :]
     h_norm = h_last.norm(dim=-1, keepdim=True)
     h_hat = h_last / (h_norm + 1e-8)
-    sv = steering_vector.to(h.device)
+    sv = steering_vector.to(h.device, h.dtype)
     proj = (h_hat * sv.unsqueeze(0)).sum(dim=-1, keepdim=True)
     sv_perp = sv.unsqueeze(0) - proj * h_hat
     sv_perp_norm = sv_perp.norm(dim=-1, keepdim=True)
@@ -271,6 +309,14 @@ def detect_layers(model):
 
 
 def extract_dataset_activations(model, tokenizer, processor, dataset, layers, layer_indices, max_pairs, device):
+    """Build output-side style activations.
+
+    The brainrot (target) and normal (source) text of each pair are placed as
+    the ASSISTANT turn after a fixed neutral user prompt, and activations are
+    mean-pooled over the assistant-content tokens. This captures the direction
+    associated with *generating* in that style, rather than with *reading* a
+    user message written in that style (the previous, weaker contrast).
+    """
     tokenizer.padding_side = "left"
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
@@ -279,75 +325,72 @@ def extract_dataset_activations(model, tokenizer, processor, dataset, layers, la
     if len(pairs) > max_pairs:
         pairs = random.sample(pairs, max_pairs)
 
+    template_fn = processor if processor is not None else tokenizer
+    encode_fn = processor if processor is not None else tokenizer
+    base_kwargs = {"tokenize": False}
+    if processor is not None:
+        base_kwargs["enable_thinking"] = False
+
+    # Constant prefix length: the carrier prompt up to the assistant header.
+    prefix_text = template_fn.apply_chat_template(
+        [{"role": "user", "content": STYLE_PROBE_PROMPT}],
+        add_generation_prompt=True,
+        **base_kwargs,
+    )
+    prefix_len = encode_fn(text=prefix_text, return_tensors="pt", truncation=True)["input_ids"].shape[1]
+
+    def render(style_text):
+        msgs = [
+            {"role": "user", "content": STYLE_PROBE_PROMPT},
+            {"role": "assistant", "content": style_text},
+        ]
+        try:
+            return template_fn.apply_chat_template(msgs, add_generation_prompt=False, **base_kwargs)
+        except Exception:
+            return template_fn.apply_chat_template(msgs, add_generation_prompt=False, tokenize=False)
+
+    if isinstance(device, torch.device):
+        is_cuda = device.type == "cuda"
+    else:
+        is_cuda = str(device) == "cuda"
+
     pos_activations = {lk: [] for lk in layer_indices}
     neg_activations = {lk: [] for lk in layer_indices}
+
+    def run_and_pool(texts, store):
+        enc = encode_fn(text=texts, return_tensors="pt", padding=True, truncation=True)
+        enc = {k: v.to(device) for k, v in enc.items()}
+        storage = {}
+        handles = [
+            layers[li].register_forward_hook(get_activation_hook(storage, lk))
+            for lk, li in layer_indices.items()
+        ]
+        try:
+            with torch.no_grad():
+                model(**enc)
+        finally:
+            for h in handles:
+                h.remove()
+        attn = enc["attention_mask"]
+        for lk, li in layer_indices.items():
+            if lk not in storage:
+                err = storage.get(f"__error_{lk}", "hook never called")
+                raise RuntimeError(
+                    f"Activation hook did not fire for '{lk}' "
+                    f"(layer_idx={li}, layer_type={type(layers[li]).__name__}): {err}"
+                )
+            store[lk].append(pool_content(storage[lk], attn, prefix_len).cpu())
+        del enc, storage
+        if is_cuda:
+            torch.cuda.empty_cache()
 
     batch_size = 8
     for batch_start in tqdm(range(0, len(pairs), batch_size), desc="Extracting activations"):
         batch_pairs = pairs[batch_start:batch_start + batch_size]
-
-        pos_texts = []
-        neg_texts = []
-        template_fn = processor if processor is not None else tokenizer
-        chat_kwargs = {"tokenize": False, "add_generation_prompt": True}
-        if processor is not None:
-            chat_kwargs["enable_thinking"] = False
-        for src, tgt in batch_pairs:
-            neg_texts.append(
-                template_fn.apply_chat_template(
-                    [{"role": "user", "content": src}],
-                    **chat_kwargs,
-                )
-            )
-            pos_texts.append(
-                template_fn.apply_chat_template(
-                    [{"role": "user", "content": tgt}],
-                    **chat_kwargs,
-                )
-            )
-
-        encode_fn = processor if processor is not None else tokenizer
-        pos_enc = encode_fn(text=pos_texts, return_tensors="pt", padding=True, truncation=True)
-        neg_enc = encode_fn(text=neg_texts, return_tensors="pt", padding=True, truncation=True)
-        pos_enc = {k: v.to(device) for k, v in pos_enc.items()}
-        neg_enc = {k: v.to(device) for k, v in neg_enc.items()}
-
-        for layer_key, layer_idx in layer_indices.items():
-            storage = {}
-            hook = get_activation_hook(storage, layer_key)
-            handle = layers[layer_idx].register_forward_hook(hook)
-            with torch.no_grad():
-                model(**pos_enc)
-            handle.remove()
-            if layer_key not in storage:
-                err = storage.get(f"__error_{layer_key}", "hook never called")
-                raise RuntimeError(
-                    f"Activation hook did not fire for '{layer_key}' "
-                    f"(layer_idx={layer_idx}, layer_type={type(layers[layer_idx]).__name__}): {err}"
-                )
-            pos_activations[layer_key].append(storage[layer_key].cpu())
-
-            storage = {}
-            hook = get_activation_hook(storage, layer_key)
-            handle = layers[layer_idx].register_forward_hook(hook)
-            with torch.no_grad():
-                model(**neg_enc)
-            handle.remove()
-            if layer_key not in storage:
-                err = storage.get(f"__error_{layer_key}", "hook never called")
-                raise RuntimeError(
-                    f"Activation hook did not fire for '{layer_key}' "
-                    f"(layer_idx={layer_idx}, layer_type={type(layers[layer_idx]).__name__}): {err}"
-                )
-            neg_activations[layer_key].append(storage[layer_key].cpu())
-
-        del pos_enc, neg_enc
-        if isinstance(device, torch.device):
-            is_cuda = device.type == "cuda"
-        else:
-            is_cuda = str(device) == "cuda"
-        if is_cuda:
-            torch.cuda.empty_cache()
+        pos_texts = [render(tgt) for _src, tgt in batch_pairs]
+        neg_texts = [render(src) for src, _tgt in batch_pairs]
+        run_and_pool(pos_texts, pos_activations)
+        run_and_pool(neg_texts, neg_activations)
 
     for lk in layer_indices:
         pos_activations[lk] = torch.cat(pos_activations[lk], dim=0)
@@ -357,33 +400,35 @@ def extract_dataset_activations(model, tokenizer, processor, dataset, layers, la
 
 
 def compute_steering_vector(technique, pos_activations, neg_activations):
+    """Return (steering_vector, natural_norm).
+
+    `natural_norm` = ||mean(pos − neg)||, the average style-shift magnitude at
+    this layer. For DoM/PCA the returned vector is scaled to this magnitude, so
+    the applied coefficient is a multiple of the natural difference (comparable
+    across layers/models, which the previous unit-norm scheme was not). For AAS
+    the vector is unit-norm (the coefficient is an angle in degrees).
+    """
+    mean_diff = (pos_activations - neg_activations).mean(dim=0)
+    natural_norm = mean_diff.norm().item()
+
     if technique == "dom":
-        mu_pos = pos_activations.mean(dim=0)
-        mu_neg = neg_activations.mean(dim=0)
-        raw = mu_pos - mu_neg
-        raw_norm = raw.norm().item()
-        steering = raw / raw.norm()
-        return steering, raw_norm
+        return mean_diff.clone(), natural_norm
 
     elif technique == "pca":
         diffs = (pos_activations - neg_activations).numpy()
         pca = PCA(n_components=1)
         pca.fit(diffs)
-        raw = torch.tensor(pca.components_[0], dtype=torch.float32)
-        raw_norm = raw.norm().item()
-        steering = raw / raw.norm()
-        mean_diff = torch.tensor(diffs.mean(axis=0), dtype=torch.float32)
-        if (mean_diff @ steering).item() < 0:
-            steering = -steering
-        return steering, raw_norm
+        comp = torch.tensor(pca.components_[0], dtype=torch.float32)
+        comp = comp / (comp.norm() + 1e-8)
+        if (mean_diff @ comp).item() < 0:
+            comp = -comp
+        # Scale the principal style direction to the natural shift magnitude so
+        # it shares the same coefficient units as DoM.
+        return comp * natural_norm, natural_norm
 
     elif technique == "aas":
-        mu_pos = pos_activations.mean(dim=0)
-        mu_neg = neg_activations.mean(dim=0)
-        raw = mu_pos - mu_neg
-        raw_norm = raw.norm().item()
-        steering = raw / raw.norm()
-        return steering, raw_norm
+        unit = mean_diff / (mean_diff.norm() + 1e-8)
+        return unit, natural_norm
 
     else:
         raise ValueError(f"Unknown technique: {technique}")
@@ -409,31 +454,34 @@ def build_messages(tokenizer, processor, question, use_system=True):
 
 
 def generate_steered_response(
-    model, tokenizer, processor, layers, layer_idx, question, steering_vector, coefficient, technique
+    model, tokenizer, processor, layers, steer_specs, question, technique, coefficient, gen_kwargs
 ):
+    """Generate one steered response.
+
+    `steer_specs` is a list of (layer_idx, steering_vector); a hook is attached
+    at every listed layer so steering can span a band of layers, each with its
+    own per-layer vector. `gen_kwargs` carries the decoding parameters.
+    """
     model_device = getattr(model, 'device', None) or next(model.parameters()).device
     prompt = build_messages(tokenizer, processor, question, use_system=True)
     encode_fn = processor if processor is not None else tokenizer
     inputs = encode_fn(text=prompt, return_tensors="pt")
     inputs = {k: v.to(model_device) for k, v in inputs.items()}
 
-    if technique == "aas":
-        hook_fn = make_steering_hook_aas(steering_vector, coefficient)
-    else:
-        hook_fn = make_steering_hook_dom_pca(steering_vector, coefficient)
+    handles = []
+    for layer_idx, vec in steer_specs:
+        if technique == "aas":
+            hook_fn = make_steering_hook_aas(vec, coefficient)
+        else:
+            hook_fn = make_steering_hook_dom_pca(vec, coefficient)
+        handles.append(layers[layer_idx].register_forward_hook(hook_fn))
 
-    handle = layers[layer_idx].register_forward_hook(hook_fn)
     try:
         with torch.no_grad():
-            output_ids = model.generate(
-                **inputs,
-                max_new_tokens=200,
-                temperature=None,
-                do_sample=False,
-                repetition_penalty=1.1,
-            )
+            output_ids = model.generate(**inputs, **gen_kwargs)
     finally:
-        handle.remove()
+        for h in handles:
+            h.remove()
 
     input_len = inputs["input_ids"].shape[1]
     decode_fn = processor if processor is not None else tokenizer
@@ -478,13 +526,38 @@ def main():
     )
     parser.add_argument(
         "--coefficients",
-        default="5,10,25,-5,-10,-25",
-        help="Comma-separated coefficient values",
+        default=None,
+        help="Comma-separated coefficient values. If omitted, a sensible "
+             "per-technique default is used (raw-difference multiples for "
+             "dom/pca, degrees for aas).",
     )
+    parser.add_argument(
+        "--layer_band",
+        type=int,
+        default=0,
+        help="Steer a band of layers around the target: 0 = single layer, "
+             "1 = target±1, etc. Each layer gets its own vector.",
+    )
+    parser.add_argument("--do_sample", action="store_true",
+                        help="Use sampling instead of greedy decoding.")
+    parser.add_argument("--temperature", type=float, default=0.8)
+    parser.add_argument("--top_p", type=float, default=0.9)
+    parser.add_argument("--repetition_penalty", type=float, default=1.3)
+    parser.add_argument("--max_new_tokens", type=int, default=200)
     args = parser.parse_args()
 
     if args.layer_pct not in (25, 50, 75):
         parser.error("--layer_pct must be 25, 50, or 75")
+
+    # Per-technique default coefficient grids (only used if --coefficients omitted).
+    #   dom/pca: multiples of the natural brainrot−normal difference vector.
+    #   aas:     rotation angle in degrees.
+    DEFAULT_COEFFS = {
+        "dom": "1,2,3,4,-2,-4",
+        "pca": "1,2,3,4,-2,-4",
+        "aas": "15,25,35,45,-25,-45",
+    }
+    coeff_str = args.coefficients if args.coefficients is not None else DEFAULT_COEFFS[args.technique]
 
     device = args.device or ("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
@@ -503,7 +576,7 @@ def main():
         if q_slice_idx < 0 or q_slice_idx >= q_slice_total:
             parser.error(f"--q_slice index out of range: {args.q_slice}")
 
-    coefficients = [float(c.strip()) for c in args.coefficients.split(",")]
+    coefficients = [float(c.strip()) for c in coeff_str.split(",")]
 
     # Load dataset
     print("Loading dataset...")
@@ -561,10 +634,13 @@ def main():
 
     layers, num_layers = detect_layers(model)
 
-    layer_key = f"{args.layer_pct}pct"
-    layer_idx = int(num_layers * args.layer_pct / 100)
-    layer_indices = {layer_key: layer_idx}
-    print(f"Model has {num_layers} layers. Target: {layer_key} (index {layer_idx})")
+    center_idx = int(num_layers * args.layer_pct / 100)
+    center_idx = max(0, min(center_idx, num_layers - 1))
+    band = max(0, args.layer_band)
+    band_idxs = [i for i in range(center_idx - band, center_idx + band + 1) if 0 <= i < num_layers]
+    layer_indices = {f"L{i}": i for i in band_idxs}
+    print(f"Model has {num_layers} layers. Center {args.layer_pct}% = index {center_idx}; "
+          f"steering layers: {band_idxs}")
 
     max_pairs = args.max_pairs if args.max_pairs > 0 else len(ds)
     pos_acts, neg_acts, num_pairs = extract_dataset_activations(
@@ -584,10 +660,11 @@ def main():
 
     csv_columns = [
         "experiment_id", "timestamp", "model_name", "technique",
-        "layer_pct", "layer_idx", "num_layers", "coefficient",
+        "layer_pct", "layer_idx", "num_layers", "layer_band", "coefficient",
         "question_id", "question", "question_category", "response",
         "steering_vector_norm", "num_pos_samples", "num_neg_samples",
-        "max_new_tokens", "decoding", "seed",
+        "max_new_tokens", "decoding", "temperature", "top_p",
+        "repetition_penalty", "strength_mode", "seed",
     ]
 
     file_exists = os.path.exists(args.output_csv)
@@ -598,18 +675,41 @@ def main():
     print(f"Starting experiment loop: {len(coefficients)} coefficients × {len(questions)} questions = {total_experiments} generations")
     print(f"Output CSV: {args.output_csv}")
 
-    print(f"\n=== Layer {layer_key} (index {layer_idx}) ===")
-    steering_vector, raw_norm = compute_steering_vector(
-        args.technique, pos_acts[layer_key], neg_acts[layer_key]
-    )
+    # One steering vector per layer in the band; each is applied at its own layer.
+    print(f"\n=== Steering layers {band_idxs} (center {center_idx}) ===")
+    steer_specs = []
+    center_norm = float("nan")
+    for i in band_idxs:
+        vec, nat_norm = compute_steering_vector(args.technique, pos_acts[f"L{i}"], neg_acts[f"L{i}"])
+        steer_specs.append((i, vec))
+        if i == center_idx:
+            center_norm = nat_norm
+    print(f"Natural style-shift norm at center layer: {center_norm:.3f}")
+
+    # Decoding parameters.
+    if args.do_sample:
+        gen_kwargs = dict(
+            max_new_tokens=args.max_new_tokens, do_sample=True,
+            temperature=args.temperature, top_p=args.top_p,
+            repetition_penalty=args.repetition_penalty,
+        )
+        decoding_str = f"sampling(t={args.temperature},p={args.top_p})"
+    else:
+        gen_kwargs = dict(
+            max_new_tokens=args.max_new_tokens, do_sample=False,
+            repetition_penalty=args.repetition_penalty,
+        )
+        decoding_str = "greedy"
+
+    strength_mode = "degrees" if args.technique == "aas" else "natural_diff_multiple"
 
     for coeff in coefficients:
         for qid_offset, (question, category) in enumerate(questions):
             qid = qid_offset + (start if q_slice_total else 0)
             try:
                 response = generate_steered_response(
-                    model, tokenizer, processor, layers, layer_idx,
-                    question, steering_vector, coeff, args.technique,
+                    model, tokenizer, processor, layers, steer_specs,
+                    question, args.technique, coeff, gen_kwargs,
                 )
             except Exception as e:
                 response = f"ERROR: {e}"
@@ -620,24 +720,29 @@ def main():
                 "model_name": args.model,
                 "technique": args.technique,
                 "layer_pct": args.layer_pct,
-                "layer_idx": layer_idx,
+                "layer_idx": center_idx,
                 "num_layers": num_layers,
+                "layer_band": band,
                 "coefficient": float(coeff),
                 "question_id": qid,
                 "question": question,
                 "question_category": category,
                 "response": response,
-                "steering_vector_norm": raw_norm,
+                "steering_vector_norm": center_norm,
                 "num_pos_samples": num_pairs,
                 "num_neg_samples": num_pairs,
-                "max_new_tokens": 200,
-                "decoding": "greedy",
+                "max_new_tokens": args.max_new_tokens,
+                "decoding": decoding_str,
+                "temperature": args.temperature if args.do_sample else "",
+                "top_p": args.top_p if args.do_sample else "",
+                "repetition_penalty": args.repetition_penalty,
+                "strength_mode": strength_mode,
                 "seed": 42,
             }
             append_csv_row(args.output_csv, csv_columns, row)
 
             if (qid_offset + 1) % 10 == 0 or qid_offset == 0:
-                print(f"[{args.model}] [{args.technique}] layer={layer_key} coeff={coeff} Q{qid_offset+1}/{len(questions)}")
+                print(f"[{args.model}] [{args.technique}] center={center_idx} band={band} coeff={coeff} Q{qid_offset+1}/{len(questions)}")
 
     print(f"\nDone! Results saved to {args.output_csv}")
 
