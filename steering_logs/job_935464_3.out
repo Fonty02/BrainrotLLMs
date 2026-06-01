@@ -1,0 +1,31 @@
+Mon Jun  1 14:39:13 2026       
++---------------------------------------------------------------------------------------+
+| NVIDIA-SMI 535.230.02             Driver Version: 535.230.02   CUDA Version: 12.2     |
+|-----------------------------------------+----------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |         Memory-Usage | GPU-Util  Compute M. |
+|                                         |                      |               MIG M. |
+|=========================================+======================+======================|
+|   0  NVIDIA H100 80GB HBM3          Off | 00000000:03:00.0 Off |                    0 |
+| N/A   25C    P0              69W / 700W |      3MiB / 81559MiB |      0%      Default |
+|                                         |                      |             Disabled |
++-----------------------------------------+----------------------+----------------------+
+                                                                                         
++---------------------------------------------------------------------------------------+
+| Processes:                                                                            |
+|  GPU   GI   CI        PID   Type   Process name                            GPU Memory |
+|        ID   ID                                                             Usage      |
+|=======================================================================================|
+|  No running processes found                                                           |
++---------------------------------------------------------------------------------------+
+CUDA: nvcc not in PATH
+========================================
+Brainrot Steering Experiment
+Model:     meta-llama/Llama-3.1-8B-Instruct
+Technique: pca
+Layer PCT: 25
+Output:    /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/Llama-3.1-8B-Instruct_pca_L25.csv
+========================================
+Using device: cuda
+Loading dataset...
+Loading model: meta-llama/Llama-3.1-8B-Instruct

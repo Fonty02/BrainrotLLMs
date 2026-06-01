@@ -1,34 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Repo card metadata block was not found. Setting CardData to empty.
-Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Loading weights:   7%|▋         | 138/1951 [00:00<00:01, 1368.48it/s]Loading weights:  14%|█▍        | 275/1951 [00:00<00:01, 1238.16it/s]Loading weights:  21%|██        | 400/1951 [00:00<00:01, 1200.09it/s]Loading weights:  27%|██▋       | 521/1951 [00:00<00:01, 1167.02it/s]Loading weights:  33%|███▎      | 640/1951 [00:00<00:01, 1144.73it/s]Loading weights:  39%|███▊      | 755/1951 [00:05<00:18, 63.46it/s]  Loading weights:  43%|████▎     | 832/1951 [00:06<00:14, 76.32it/s]Loading weights:  46%|████▌     | 891/1951 [00:06<00:11, 88.76it/s]Loading weights:  48%|████▊     | 939/1951 [00:06<00:10, 100.27it/s]Loading weights:  50%|█████     | 979/1951 [00:06<00:08, 112.50it/s]Loading weights:  52%|█████▏    | 1014/1951 [00:07<00:08, 116.98it/s]Loading weights:  53%|█████▎    | 1043/1951 [00:07<00:07, 116.76it/s]Loading weights:  55%|█████▍    | 1067/1951 [00:07<00:07, 124.22it/s]Loading weights:  56%|█████▌    | 1089/1951 [00:07<00:07, 115.34it/s]Loading weights:  57%|█████▋    | 1107/1951 [00:07<00:07, 118.76it/s]Loading weights:  58%|█████▊    | 1124/1951 [00:08<00:07, 115.02it/s]Loading weights:  58%|█████▊    | 1139/1951 [00:08<00:07, 115.97it/s]Loading weights:  59%|█████▉    | 1153/1951 [00:08<00:07, 113.40it/s]Loading weights:  60%|█████▉    | 1167/1951 [00:08<00:06, 113.78it/s]Loading weights:  61%|██████    | 1181/1951 [00:08<00:06, 113.29it/s]Loading weights:  61%|██████▏   | 1195/1951 [00:08<00:06, 113.16it/s]Loading weights:  62%|██████▏   | 1209/1951 [00:08<00:06, 112.87it/s]Loading weights:  63%|██████▎   | 1221/1951 [00:08<00:06, 114.34it/s]Loading weights:  63%|██████▎   | 1233/1951 [00:09<00:06, 110.54it/s]Loading weights:  64%|██████▍   | 1245/1951 [00:09<00:06, 104.79it/s]Loading weights:  64%|██████▍   | 1256/1951 [00:09<00:06, 103.16it/s]Loading weights:  65%|██████▍   | 1267/1951 [00:09<00:06, 99.11it/s] Loading weights:  66%|██████▌   | 1280/1951 [00:09<00:06, 100.46it/s]Loading weights:  71%|███████   | 1379/1951 [00:09<00:01, 327.78it/s]Loading weights:  80%|████████  | 1568/1951 [00:09<00:00, 746.37it/s]Loading weights:  90%|█████████ | 1758/1951 [00:09<00:00, 1055.75it/s]Loading weights: 100%|██████████| 1951/1951 [00:09<00:00, 1290.05it/s]Loading weights: 100%|██████████| 1951/1951 [00:09<00:00, 195.43it/s] 
-Traceback (most recent call last):
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 615, in <module>
-    main()
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 517, in main
-    processor = AutoProcessor.from_pretrained(
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/models/auto/processing_auto.py", line 436, in from_pretrained
-    return processor_class.from_pretrained(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/processing_utils.py", line 1429, in from_pretrained
-    args = cls._get_arguments_from_pretrained(pretrained_model_name_or_path, processor_dict, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/processing_utils.py", line 1558, in _get_arguments_from_pretrained
-    sub_processor = auto_processor_class.from_pretrained(
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/models/auto/video_processing_auto.py", line 371, in from_pretrained
-    return video_processor_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2054, in __getattribute__
-    requires_backends(cls, cls._backends)
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2040, in requires_backends
-    raise ImportError("".join(failed))
-ImportError: 
-Gemma4VideoProcessor requires the Torchvision library but it was not found in your environment. Check out the instructions on the
-installation page: https://pytorch.org/get-started/locally/ and follow the ones that match your environment.
-Please note that you may need to restart your runtime after installation.
-
-
-real	0m39.900s
-user	0m12.709s
-sys	0m13.653s

@@ -1,34 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Repo card metadata block was not found. Setting CardData to empty.
-Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Loading weights:   8%|▊         | 153/1951 [00:00<00:01, 1514.71it/s]Loading weights:  16%|█▌        | 305/1951 [00:00<00:01, 1402.86it/s]Loading weights:  23%|██▎       | 446/1951 [00:00<00:01, 1291.06it/s]Loading weights:  30%|██▉       | 576/1951 [00:00<00:01, 1240.40it/s]Loading weights:  36%|███▌      | 701/1951 [00:00<00:01, 1234.62it/s]Loading weights:  42%|████▏     | 825/1951 [00:05<00:15, 72.06it/s]  Loading weights:  47%|████▋     | 908/1951 [00:06<00:12, 86.28it/s]Loading weights:  50%|████▉     | 972/1951 [00:06<00:09, 99.68it/s]Loading weights:  52%|█████▏    | 1024/1951 [00:06<00:08, 110.15it/s]Loading weights:  55%|█████▍    | 1066/1951 [00:06<00:07, 112.77it/s]Loading weights:  56%|█████▋    | 1099/1951 [00:07<00:07, 110.62it/s]Loading weights:  58%|█████▊    | 1125/1951 [00:07<00:07, 117.09it/s]Loading weights:  59%|█████▉    | 1148/1951 [00:07<00:06, 118.17it/s]Loading weights:  60%|█████▉    | 1168/1951 [00:07<00:06, 116.58it/s]Loading weights:  61%|██████    | 1186/1951 [00:07<00:06, 118.04it/s]Loading weights:  62%|██████▏   | 1202/1951 [00:07<00:06, 122.13it/s]Loading weights:  62%|██████▏   | 1218/1951 [00:08<00:05, 123.81it/s]Loading weights:  63%|██████▎   | 1233/1951 [00:08<00:05, 123.98it/s]Loading weights:  64%|██████▍   | 1247/1951 [00:08<00:05, 126.25it/s]Loading weights:  65%|██████▍   | 1261/1951 [00:08<00:05, 126.19it/s]Loading weights:  65%|██████▌   | 1275/1951 [00:08<00:05, 126.66it/s]Loading weights:  66%|██████▌   | 1289/1951 [00:08<00:05, 120.87it/s]Loading weights:  74%|███████▍  | 1439/1951 [00:08<00:01, 465.09it/s]Loading weights:  85%|████████▍ | 1649/1951 [00:08<00:00, 893.22it/s]Loading weights:  95%|█████████▌| 1856/1951 [00:08<00:00, 1213.94it/s]Loading weights: 100%|██████████| 1951/1951 [00:09<00:00, 215.33it/s] 
-Traceback (most recent call last):
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 615, in <module>
-    main()
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 517, in main
-    processor = AutoProcessor.from_pretrained(
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/models/auto/processing_auto.py", line 436, in from_pretrained
-    return processor_class.from_pretrained(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/processing_utils.py", line 1429, in from_pretrained
-    args = cls._get_arguments_from_pretrained(pretrained_model_name_or_path, processor_dict, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/processing_utils.py", line 1558, in _get_arguments_from_pretrained
-    sub_processor = auto_processor_class.from_pretrained(
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/models/auto/video_processing_auto.py", line 371, in from_pretrained
-    return video_processor_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2054, in __getattribute__
-    requires_backends(cls, cls._backends)
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2040, in requires_backends
-    raise ImportError("".join(failed))
-ImportError: 
-Gemma4VideoProcessor requires the Torchvision library but it was not found in your environment. Check out the instructions on the
-installation page: https://pytorch.org/get-started/locally/ and follow the ones that match your environment.
-Please note that you may need to restart your runtime after installation.
-
-
-real	0m39.220s
-user	0m12.636s
-sys	0m12.890s

@@ -1,6 +1,7 @@
 #!/bin/bash
 set -euo pipefail
-
+nvidia-smi
+echo "CUDA: $(nvcc --version 2>/dev/null || echo 'nvcc not in PATH')"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 

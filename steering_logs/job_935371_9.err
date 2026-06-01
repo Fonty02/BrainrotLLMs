@@ -1,34 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Repo card metadata block was not found. Setting CardData to empty.
-Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Loading weights:  10%|█         | 200/1951 [00:00<00:00, 1941.55it/s]Loading weights:  20%|██        | 395/1951 [00:00<00:00, 1759.64it/s]Loading weights:  29%|██▉       | 572/1951 [00:00<00:00, 1704.71it/s]Loading weights:  38%|███▊      | 747/1951 [00:00<00:00, 1718.77it/s]Loading weights:  47%|████▋     | 920/1951 [00:04<00:08, 119.49it/s] Loading weights:  53%|█████▎    | 1032/1951 [00:04<00:06, 139.21it/s]Loading weights:  57%|█████▋    | 1116/1951 [00:05<00:05, 146.33it/s]Loading weights:  60%|██████    | 1179/1951 [00:05<00:05, 153.42it/s]Loading weights:  63%|██████▎   | 1228/1951 [00:05<00:04, 153.83it/s]Loading weights:  65%|██████▍   | 1267/1951 [00:06<00:04, 155.72it/s]Loading weights:  67%|██████▋   | 1299/1951 [00:06<00:03, 167.11it/s]Loading weights:  81%|████████  | 1583/1951 [00:06<00:00, 448.05it/s]Loading weights:  96%|█████████▌| 1865/1951 [00:06<00:00, 757.71it/s]Loading weights: 100%|██████████| 1951/1951 [00:06<00:00, 300.43it/s]
-Traceback (most recent call last):
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 615, in <module>
-    main()
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 517, in main
-    processor = AutoProcessor.from_pretrained(
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/models/auto/processing_auto.py", line 436, in from_pretrained
-    return processor_class.from_pretrained(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/processing_utils.py", line 1429, in from_pretrained
-    args = cls._get_arguments_from_pretrained(pretrained_model_name_or_path, processor_dict, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/processing_utils.py", line 1558, in _get_arguments_from_pretrained
-    sub_processor = auto_processor_class.from_pretrained(
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/models/auto/video_processing_auto.py", line 371, in from_pretrained
-    return video_processor_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2054, in __getattribute__
-    requires_backends(cls, cls._backends)
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2040, in requires_backends
-    raise ImportError("".join(failed))
-ImportError: 
-Gemma4VideoProcessor requires the Torchvision library but it was not found in your environment. Check out the instructions on the
-installation page: https://pytorch.org/get-started/locally/ and follow the ones that match your environment.
-Please note that you may need to restart your runtime after installation.
-
-
-real	0m38.662s
-user	0m12.947s
-sys	0m10.055s
