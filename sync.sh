@@ -16,7 +16,6 @@ from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoProcessor, AutoTokenizer
 
 MODELS = [
-    "meta-llama/Llama-3.1-8B-Instruct",
     "google/gemma-4-E2B-it",
 ]
 

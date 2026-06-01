@@ -1,12 +1,9 @@
 universe = vanilla
 executable = steering_submit_files/run_judge.sh
-initialdir = ..
 request_cpus = 8
 request_gpus = 1
-request_memory = 48GB
-request_disk = 10GB
+request_memory = 8900
 getenv = True
-requirements = (TARGET.CUDACapability >= 7.0)
 log = steering_logs/judge_$(Cluster)_$(Process).log
 output = steering_logs/judge_$(Cluster)_$(Process).out
 error = steering_logs/judge_$(Cluster)_$(Process).err
