@@ -25,9 +25,12 @@ from pathlib import Path
 import numpy as np
 import torch
 from datasets import load_dataset
+from dotenv import load_dotenv
 from sklearn.decomposition import PCA
 from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoProcessor, AutoTokenizer
+
+load_dotenv()
 
 
 def set_seed(seed=42):
