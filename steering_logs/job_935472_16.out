@@ -1,0 +1,109 @@
+Mon Jun  1 15:26:20 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.159.04             Driver Version: 580.159.04     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA H100 80GB HBM3          Off |   00000000:04:00.0 Off |                    0 |
+| N/A   25C    P0             70W /  700W |       5MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+CUDA: nvcc not in PATH
+========================================
+Brainrot Steering Experiment
+Model:     google/gemma-4-E2B-it
+Technique: aas
+Layer PCT: 50
+Output:    /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/gemma-4-E2B-it_aas_L50.csv
+========================================
+Using device: cuda
+Loading dataset...
+Loading model: google/gemma-4-E2B-it
+[detect_layers] branch: model.model.language_model.layers, layer type: Gemma4TextDecoderLayer
+Model has 35 layers. Target: 50pct (index 17)
+Extracted activations from 2000 pairs
+Starting experiment loop: 6 coefficients × 100 questions = 600 generations
+Output CSV: /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/gemma-4-E2B-it_aas_L50.csv
+
+=== Layer 50pct (index 17) ===
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=5.0 Q1/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=5.0 Q10/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=5.0 Q20/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=5.0 Q30/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=5.0 Q40/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=5.0 Q50/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=5.0 Q60/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=5.0 Q70/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=5.0 Q80/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=5.0 Q90/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=5.0 Q100/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=10.0 Q1/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=10.0 Q10/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=10.0 Q20/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=10.0 Q30/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=10.0 Q40/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=10.0 Q50/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=10.0 Q60/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=10.0 Q70/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=10.0 Q80/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=10.0 Q90/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=10.0 Q100/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=25.0 Q1/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=25.0 Q10/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=25.0 Q20/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=25.0 Q30/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=25.0 Q40/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=25.0 Q50/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=25.0 Q60/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=25.0 Q70/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=25.0 Q80/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=25.0 Q90/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=25.0 Q100/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-5.0 Q1/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-5.0 Q10/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-5.0 Q20/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-5.0 Q30/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-5.0 Q40/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-5.0 Q50/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-5.0 Q60/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-5.0 Q70/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-5.0 Q80/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-5.0 Q90/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-5.0 Q100/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-10.0 Q1/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-10.0 Q10/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-10.0 Q20/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-10.0 Q30/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-10.0 Q40/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-10.0 Q50/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-10.0 Q60/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-10.0 Q70/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-10.0 Q80/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-10.0 Q90/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-10.0 Q100/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-25.0 Q1/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-25.0 Q10/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-25.0 Q20/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-25.0 Q30/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-25.0 Q40/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-25.0 Q50/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-25.0 Q60/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-25.0 Q70/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-25.0 Q80/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-25.0 Q90/100
+[google/gemma-4-E2B-it] [aas] layer=50pct coeff=-25.0 Q100/100
+
+Done! Results saved to /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/gemma-4-E2B-it_aas_L50.csv
+========================================
+Completed: google/gemma-4-E2B-it | aas | L50
+========================================
