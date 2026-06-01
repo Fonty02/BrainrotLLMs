@@ -7,57 +7,57 @@ getenv = True
 log = steering_logs/judge_$(Cluster)_$(Process).log
 output = steering_logs/judge_$(Cluster)_$(Process).out
 error = steering_logs/judge_$(Cluster)_$(Process).err
-arguments = "--input_csv steering_results/gemma-4-E2B-it_aas_L25.csv --output_csv steering_results/gemma-4-E2B-it_aas_L25_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/gemma-4-E2B-it_aas_L25.csv --output_csv steering_results/gemma-4-E2B-it_aas_L25_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/gemma-4-E2B-it_aas_L50.csv --output_csv steering_results/gemma-4-E2B-it_aas_L50_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/gemma-4-E2B-it_aas_L50.csv --output_csv steering_results/gemma-4-E2B-it_aas_L50_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/gemma-4-E2B-it_aas_L75.csv --output_csv steering_results/gemma-4-E2B-it_aas_L75_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/gemma-4-E2B-it_aas_L75.csv --output_csv steering_results/gemma-4-E2B-it_aas_L75_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/gemma-4-E2B-it_dom_L25.csv --output_csv steering_results/gemma-4-E2B-it_dom_L25_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/gemma-4-E2B-it_dom_L25.csv --output_csv steering_results/gemma-4-E2B-it_dom_L25_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/gemma-4-E2B-it_dom_L50.csv --output_csv steering_results/gemma-4-E2B-it_dom_L50_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/gemma-4-E2B-it_dom_L50.csv --output_csv steering_results/gemma-4-E2B-it_dom_L50_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/gemma-4-E2B-it_dom_L75.csv --output_csv steering_results/gemma-4-E2B-it_dom_L75_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/gemma-4-E2B-it_dom_L75.csv --output_csv steering_results/gemma-4-E2B-it_dom_L75_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/gemma-4-E2B-it_pca_L25.csv --output_csv steering_results/gemma-4-E2B-it_pca_L25_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/gemma-4-E2B-it_pca_L25.csv --output_csv steering_results/gemma-4-E2B-it_pca_L25_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/gemma-4-E2B-it_pca_L50.csv --output_csv steering_results/gemma-4-E2B-it_pca_L50_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/gemma-4-E2B-it_pca_L50.csv --output_csv steering_results/gemma-4-E2B-it_pca_L50_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/gemma-4-E2B-it_pca_L75.csv --output_csv steering_results/gemma-4-E2B-it_pca_L75_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/gemma-4-E2B-it_pca_L75.csv --output_csv steering_results/gemma-4-E2B-it_pca_L75_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_aas_L25.csv --output_csv steering_results/Llama-3.1-8B-Instruct_aas_L25_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_aas_L25.csv --output_csv steering_results/Llama-3.1-8B-Instruct_aas_L25_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_aas_L50.csv --output_csv steering_results/Llama-3.1-8B-Instruct_aas_L50_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_aas_L50.csv --output_csv steering_results/Llama-3.1-8B-Instruct_aas_L50_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_aas_L75.csv --output_csv steering_results/Llama-3.1-8B-Instruct_aas_L75_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_aas_L75.csv --output_csv steering_results/Llama-3.1-8B-Instruct_aas_L75_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_dom_L25.csv --output_csv steering_results/Llama-3.1-8B-Instruct_dom_L25_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_dom_L25.csv --output_csv steering_results/Llama-3.1-8B-Instruct_dom_L25_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_dom_L50.csv --output_csv steering_results/Llama-3.1-8B-Instruct_dom_L50_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_dom_L50.csv --output_csv steering_results/Llama-3.1-8B-Instruct_dom_L50_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_dom_L75.csv --output_csv steering_results/Llama-3.1-8B-Instruct_dom_L75_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_dom_L75.csv --output_csv steering_results/Llama-3.1-8B-Instruct_dom_L75_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_pca_L25.csv --output_csv steering_results/Llama-3.1-8B-Instruct_pca_L25_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_pca_L25.csv --output_csv steering_results/Llama-3.1-8B-Instruct_pca_L25_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_pca_L50.csv --output_csv steering_results/Llama-3.1-8B-Instruct_pca_L50_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_pca_L50.csv --output_csv steering_results/Llama-3.1-8B-Instruct_pca_L50_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_pca_L75.csv --output_csv steering_results/Llama-3.1-8B-Instruct_pca_L75_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Llama-3.1-8B-Instruct_pca_L75.csv --output_csv steering_results/Llama-3.1-8B-Instruct_pca_L75_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_aas_L25.csv --output_csv steering_results/Qwen2.5-7B-Instruct_aas_L25_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_aas_L25.csv --output_csv steering_results/Qwen2.5-7B-Instruct_aas_L25_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_aas_L50.csv --output_csv steering_results/Qwen2.5-7B-Instruct_aas_L50_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_aas_L50.csv --output_csv steering_results/Qwen2.5-7B-Instruct_aas_L50_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_aas_L75.csv --output_csv steering_results/Qwen2.5-7B-Instruct_aas_L75_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_aas_L75.csv --output_csv steering_results/Qwen2.5-7B-Instruct_aas_L75_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_dom_L25.csv --output_csv steering_results/Qwen2.5-7B-Instruct_dom_L25_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_dom_L25.csv --output_csv steering_results/Qwen2.5-7B-Instruct_dom_L25_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_dom_L50.csv --output_csv steering_results/Qwen2.5-7B-Instruct_dom_L50_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_dom_L50.csv --output_csv steering_results/Qwen2.5-7B-Instruct_dom_L50_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_dom_L75.csv --output_csv steering_results/Qwen2.5-7B-Instruct_dom_L75_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_dom_L75.csv --output_csv steering_results/Qwen2.5-7B-Instruct_dom_L75_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_pca_L25.csv --output_csv steering_results/Qwen2.5-7B-Instruct_pca_L25_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_pca_L25.csv --output_csv steering_results/Qwen2.5-7B-Instruct_pca_L25_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_pca_L50.csv --output_csv steering_results/Qwen2.5-7B-Instruct_pca_L50_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_pca_L50.csv --output_csv steering_results/Qwen2.5-7B-Instruct_pca_L50_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
-arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_pca_L75.csv --output_csv steering_results/Qwen2.5-7B-Instruct_pca_L75_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
+arguments = "--input_csv steering_results/Qwen2.5-7B-Instruct_pca_L75.csv --output_csv steering_results/Qwen2.5-7B-Instruct_pca_L75_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache"
 queue
