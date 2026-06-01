@@ -154,8 +154,13 @@ def get_questions():
 
 def get_activation_hook(storage_dict, layer_key):
     def hook(module, input, output):
-        hidden = output[0] if isinstance(output, tuple) else output
-        storage_dict[layer_key] = hidden[:, -1, :].detach().float()
+        try:
+            hidden = output[0] if isinstance(output, tuple) else output
+            if not isinstance(hidden, torch.Tensor):
+                raise TypeError(f"Expected tensor, got {type(hidden)}")
+            storage_dict[layer_key] = hidden[:, -1, :].detach().float()
+        except Exception as e:
+            storage_dict[f"__error_{layer_key}"] = str(e)
     return hook
 
 
@@ -212,18 +217,29 @@ def detect_layers(model):
     # Gemma-4 multimodal: text decoder layers are in language_model.decoder.layers
     if hasattr(model, 'language_model'):
         lm = model.language_model
+        print(f"[detect_layers] language_model type: {type(lm).__name__}", flush=True)
         if hasattr(lm, 'decoder') and hasattr(lm.decoder, 'layers'):
             layers = lm.decoder.layers
+            print(f"[detect_layers] branch: lm.decoder.layers, layer type: {type(layers[0]).__name__}", flush=True)
             return layers, len(layers)
         if hasattr(lm, 'model') and hasattr(lm.model, 'decoder') and hasattr(lm.model.decoder, 'layers'):
             layers = lm.model.decoder.layers
+            print(f"[detect_layers] branch: lm.model.decoder.layers, layer type: {type(layers[0]).__name__}", flush=True)
             return layers, len(layers)
         if hasattr(lm, 'layers'):
             layers = lm.layers
+            print(f"[detect_layers] branch: lm.layers, layer type: {type(layers[0]).__name__}", flush=True)
             return layers, len(layers)
         if hasattr(lm, 'model') and hasattr(lm.model, 'layers'):
             layers = lm.model.layers
+            print(f"[detect_layers] branch: lm.model.layers, layer type: {type(layers[0]).__name__}", flush=True)
             return layers, len(layers)
+
+    # Gemma4ForConditionalGeneration: text layers at model.model.language_model.layers
+    if hasattr(model, 'model') and hasattr(model.model, 'language_model') and hasattr(model.model.language_model, 'layers'):
+        layers = model.model.language_model.layers
+        print(f"[detect_layers] branch: model.model.language_model.layers, layer type: {type(layers[0]).__name__}", flush=True)
+        return layers, len(layers)
 
     if hasattr(model, 'model') and hasattr(model.model, 'layers'):
         layers = model.model.layers
@@ -303,6 +319,12 @@ def extract_dataset_activations(model, tokenizer, processor, dataset, layers, la
             with torch.no_grad():
                 model(**pos_enc)
             handle.remove()
+            if layer_key not in storage:
+                err = storage.get(f"__error_{layer_key}", "hook never called")
+                raise RuntimeError(
+                    f"Activation hook did not fire for '{layer_key}' "
+                    f"(layer_idx={layer_idx}, layer_type={type(layers[layer_idx]).__name__}): {err}"
+                )
             pos_activations[layer_key].append(storage[layer_key].cpu())
 
             storage = {}
@@ -311,6 +333,12 @@ def extract_dataset_activations(model, tokenizer, processor, dataset, layers, la
             with torch.no_grad():
                 model(**neg_enc)
             handle.remove()
+            if layer_key not in storage:
+                err = storage.get(f"__error_{layer_key}", "hook never called")
+                raise RuntimeError(
+                    f"Activation hook did not fire for '{layer_key}' "
+                    f"(layer_idx={layer_idx}, layer_type={type(layers[layer_idx]).__name__}): {err}"
+                )
             neg_activations[layer_key].append(storage[layer_key].cpu())
 
         del pos_enc, neg_enc
