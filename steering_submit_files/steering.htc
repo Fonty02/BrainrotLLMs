@@ -3,13 +3,12 @@ executable = steering_submit_files/run_steering.sh
 request_cpus = 8
 request_gpus = 1
 request_memory = 16000
+getenv=True
 log = steering_logs/job_$(Cluster)_$(Process).log
 output = steering_logs/job_$(Cluster)_$(Process).out
 error = steering_logs/job_$(Cluster)_$(Process).err
-getenv=True
 arguments = "$(MODEL) $(TECHNIQUE) $(LAYER_PCT)"
 queue MODEL, TECHNIQUE, LAYER_PCT from (
-  Qwen/Qwen2.5-7B-Instruct pca 25
   meta-llama/Llama-3.1-8B-Instruct dom 25
   meta-llama/Llama-3.1-8B-Instruct dom 50
   meta-llama/Llama-3.1-8B-Instruct dom 75

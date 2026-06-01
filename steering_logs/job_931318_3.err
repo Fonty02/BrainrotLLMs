@@ -1,22 +1,0 @@
-Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
-Repo card metadata block was not found. Setting CardData to empty.
-Generating train split:   0%|          | 0/5663 [00:00<?, ? examples/s]Generating train split: 100%|██████████| 5663/5663 [00:00<00:00, 100079.40 examples/s]
-Traceback (most recent call last):
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 583, in <module>
-    main()
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 458, in main
-    ds = load_dataset(
-         ^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/datasets/load.py", line 1708, in load_dataset
-    builder_instance.download_and_prepare(
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/datasets/builder.py", line 882, in download_and_prepare
-    self._download_and_prepare(
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/datasets/builder.py", line 945, in _download_and_prepare
-    raise OSError("Cannot find data file. " + "\nOriginal error:\n" + str(e)) from None
-OSError: Cannot find data file. 
-Original error:
-[Errno 2] No such file or directory: '/lustrehome/fonty/huggingface_cache/shvn22k___brainrot-dataset/default/0.0.0/d6830d75872a6f3a8405542600e327b9a7b2a461.incomplete/brainrot-dataset-train-00000-00000-of-NNNNN.arrow'
-
-real	0m16.539s
-user	0m5.229s
-sys	0m1.629s

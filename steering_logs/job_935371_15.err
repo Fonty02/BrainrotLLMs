@@ -1,0 +1,34 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Repo card metadata block was not found. Setting CardData to empty.
+Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Loading weights:   8%|▊         | 153/1951 [00:00<00:01, 1505.45it/s]Loading weights:  16%|█▌        | 304/1951 [00:00<00:01, 1412.69it/s]Loading weights:  23%|██▎       | 446/1951 [00:00<00:01, 1296.84it/s]Loading weights:  30%|██▉       | 577/1951 [00:00<00:01, 1260.18it/s]Loading weights:  36%|███▌      | 704/1951 [00:00<00:01, 1223.85it/s]Loading weights:  42%|████▏     | 827/1951 [00:05<00:15, 72.18it/s]  Loading weights:  47%|████▋     | 909/1951 [00:06<00:11, 86.94it/s]Loading weights:  50%|████▉     | 973/1951 [00:06<00:09, 100.29it/s]Loading weights:  53%|█████▎    | 1025/1951 [00:06<00:08, 111.12it/s]Loading weights:  55%|█████▍    | 1067/1951 [00:06<00:07, 113.80it/s]Loading weights:  56%|█████▋    | 1100/1951 [00:07<00:07, 111.67it/s]Loading weights:  58%|█████▊    | 1126/1951 [00:07<00:07, 112.89it/s]Loading weights:  59%|█████▉    | 1148/1951 [00:07<00:06, 119.15it/s]Loading weights:  60%|█████▉    | 1169/1951 [00:07<00:06, 115.91it/s]Loading weights:  61%|██████    | 1187/1951 [00:07<00:06, 122.35it/s]Loading weights:  62%|██████▏   | 1204/1951 [00:07<00:05, 126.55it/s]Loading weights:  63%|██████▎   | 1221/1951 [00:08<00:05, 128.11it/s]Loading weights:  63%|██████▎   | 1237/1951 [00:08<00:05, 124.47it/s]Loading weights:  64%|██████▍   | 1252/1951 [00:08<00:05, 119.98it/s]Loading weights:  65%|██████▍   | 1266/1951 [00:08<00:06, 113.77it/s]Loading weights:  66%|██████▌   | 1281/1951 [00:08<00:05, 118.69it/s]Loading weights:  71%|███████   | 1388/1951 [00:08<00:01, 336.12it/s]Loading weights:  82%|████████▏ | 1594/1951 [00:08<00:00, 761.27it/s]Loading weights:  92%|█████████▏| 1800/1951 [00:08<00:00, 1098.99it/s]Loading weights: 100%|██████████| 1951/1951 [00:09<00:00, 216.57it/s] 
+Traceback (most recent call last):
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 615, in <module>
+    main()
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 517, in main
+    processor = AutoProcessor.from_pretrained(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/models/auto/processing_auto.py", line 436, in from_pretrained
+    return processor_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/processing_utils.py", line 1429, in from_pretrained
+    args = cls._get_arguments_from_pretrained(pretrained_model_name_or_path, processor_dict, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/processing_utils.py", line 1558, in _get_arguments_from_pretrained
+    sub_processor = auto_processor_class.from_pretrained(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/models/auto/video_processing_auto.py", line 371, in from_pretrained
+    return video_processor_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2054, in __getattribute__
+    requires_backends(cls, cls._backends)
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2040, in requires_backends
+    raise ImportError("".join(failed))
+ImportError: 
+Gemma4VideoProcessor requires the Torchvision library but it was not found in your environment. Check out the instructions on the
+installation page: https://pytorch.org/get-started/locally/ and follow the ones that match your environment.
+Please note that you may need to restart your runtime after installation.
+
+
+real	0m39.040s
+user	0m12.606s
+sys	0m12.530s
