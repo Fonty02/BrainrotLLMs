@@ -1,0 +1,34 @@
+Repo card metadata block was not found. Setting CardData to empty.
+Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Loading weights:   9%|▉         | 181/1951 [00:00<00:00, 1794.27it/s]Loading weights:  19%|█▊        | 361/1951 [00:00<00:01, 1541.74it/s]Loading weights:  27%|██▋       | 518/1951 [00:00<00:01, 1415.10it/s]Loading weights:  35%|███▍      | 674/1951 [00:00<00:00, 1462.51it/s]Loading weights:  42%|████▏     | 822/1951 [00:05<00:13, 82.71it/s]  Loading weights:  47%|████▋     | 918/1951 [00:05<00:10, 98.14it/s]Loading weights:  51%|█████     | 990/1951 [00:06<00:08, 112.31it/s]Loading weights:  54%|█████▎    | 1047/1951 [00:06<00:07, 116.69it/s]Loading weights:  56%|█████▌    | 1090/1951 [00:06<00:07, 117.86it/s]Loading weights:  58%|█████▊    | 1124/1951 [00:07<00:06, 121.65it/s]Loading weights:  59%|█████▉    | 1152/1951 [00:07<00:06, 121.64it/s]Loading weights:  60%|██████    | 1175/1951 [00:07<00:06, 119.86it/s]Loading weights:  61%|██████▏   | 1195/1951 [00:07<00:06, 121.88it/s]Loading weights:  62%|██████▏   | 1213/1951 [00:07<00:06, 118.14it/s]Loading weights:  63%|██████▎   | 1229/1951 [00:08<00:05, 120.62it/s]Loading weights:  64%|██████▍   | 1244/1951 [00:08<00:05, 123.66it/s]Loading weights:  65%|██████▍   | 1259/1951 [00:08<00:05, 125.16it/s]Loading weights:  65%|██████▌   | 1274/1951 [00:08<00:05, 128.03it/s]Loading weights:  66%|██████▌   | 1288/1951 [00:08<00:05, 126.64it/s]Loading weights:  73%|███████▎  | 1425/1951 [00:08<00:01, 417.86it/s]Loading weights:  84%|████████▍ | 1635/1951 [00:08<00:00, 834.70it/s]Loading weights:  94%|█████████▍| 1840/1951 [00:08<00:00, 1154.07it/s]Loading weights: 100%|██████████| 1951/1951 [00:08<00:00, 218.49it/s] 
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Traceback (most recent call last):
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 615, in <module>
+    main()
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 517, in main
+    processor = AutoProcessor.from_pretrained(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/models/auto/processing_auto.py", line 436, in from_pretrained
+    return processor_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/processing_utils.py", line 1429, in from_pretrained
+    args = cls._get_arguments_from_pretrained(pretrained_model_name_or_path, processor_dict, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/processing_utils.py", line 1558, in _get_arguments_from_pretrained
+    sub_processor = auto_processor_class.from_pretrained(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/models/auto/video_processing_auto.py", line 371, in from_pretrained
+    return video_processor_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2054, in __getattribute__
+    requires_backends(cls, cls._backends)
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2040, in requires_backends
+    raise ImportError("".join(failed))
+ImportError: 
+Gemma4VideoProcessor requires the Torchvision library but it was not found in your environment. Check out the instructions on the
+installation page: https://pytorch.org/get-started/locally/ and follow the ones that match your environment.
+Please note that you may need to restart your runtime after installation.
+
+
+real	0m38.327s
+user	0m12.705s
+sys	0m12.163s

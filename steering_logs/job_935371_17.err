@@ -1,0 +1,34 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Repo card metadata block was not found. Setting CardData to empty.
+Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Loading weights:   8%|▊         | 161/1951 [00:00<00:01, 1609.39it/s]Loading weights:  17%|█▋        | 322/1951 [00:00<00:01, 1381.08it/s]Loading weights:  24%|██▎       | 463/1951 [00:00<00:01, 1282.40it/s]Loading weights:  30%|███       | 593/1951 [00:00<00:01, 1259.60it/s]Loading weights:  37%|███▋      | 720/1951 [00:00<00:00, 1248.07it/s]Loading weights:  43%|████▎     | 846/1951 [00:05<00:15, 71.89it/s]  Loading weights:  48%|████▊     | 930/1951 [00:06<00:11, 86.26it/s]Loading weights:  51%|█████     | 995/1951 [00:06<00:09, 101.43it/s]Loading weights:  54%|█████▍    | 1049/1951 [00:06<00:08, 106.80it/s]Loading weights:  56%|█████▌    | 1091/1951 [00:07<00:07, 109.61it/s]Loading weights:  58%|█████▊    | 1124/1951 [00:07<00:07, 114.18it/s]Loading weights:  59%|█████▉    | 1151/1951 [00:07<00:06, 114.81it/s]Loading weights:  60%|██████    | 1174/1951 [00:07<00:06, 114.38it/s]Loading weights:  61%|██████    | 1193/1951 [00:07<00:06, 119.75it/s]Loading weights:  62%|██████▏   | 1211/1951 [00:08<00:06, 112.09it/s]Loading weights:  63%|██████▎   | 1227/1951 [00:08<00:06, 115.24it/s]Loading weights:  64%|██████▎   | 1242/1951 [00:08<00:05, 118.89it/s]Loading weights:  64%|██████▍   | 1257/1951 [00:08<00:05, 122.51it/s]Loading weights:  65%|██████▌   | 1272/1951 [00:08<00:05, 125.36it/s]Loading weights:  66%|██████▌   | 1286/1951 [00:08<00:05, 125.21it/s]Loading weights:  71%|███████   | 1389/1951 [00:08<00:01, 338.29it/s]Loading weights:  82%|████████▏ | 1592/1951 [00:08<00:00, 762.45it/s]Loading weights:  92%|█████████▏| 1800/1951 [00:08<00:00, 1109.83it/s]Loading weights: 100%|██████████| 1951/1951 [00:09<00:00, 216.03it/s] 
+Traceback (most recent call last):
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 615, in <module>
+    main()
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 517, in main
+    processor = AutoProcessor.from_pretrained(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/models/auto/processing_auto.py", line 436, in from_pretrained
+    return processor_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/processing_utils.py", line 1429, in from_pretrained
+    args = cls._get_arguments_from_pretrained(pretrained_model_name_or_path, processor_dict, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/processing_utils.py", line 1558, in _get_arguments_from_pretrained
+    sub_processor = auto_processor_class.from_pretrained(
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/models/auto/video_processing_auto.py", line 371, in from_pretrained
+    return video_processor_class.from_pretrained(pretrained_model_name_or_path, *inputs, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2054, in __getattribute__
+    requires_backends(cls, cls._backends)
+  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/.venv/lib/python3.12/site-packages/transformers/utils/import_utils.py", line 2040, in requires_backends
+    raise ImportError("".join(failed))
+ImportError: 
+Gemma4VideoProcessor requires the Torchvision library but it was not found in your environment. Check out the instructions on the
+installation page: https://pytorch.org/get-started/locally/ and follow the ones that match your environment.
+Please note that you may need to restart your runtime after installation.
+
+
+real	0m39.405s
+user	0m12.603s
+sys	0m12.580s
