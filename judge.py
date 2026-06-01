@@ -95,7 +95,7 @@ def main():
     parser = argparse.ArgumentParser(description="Brainrot Style Judge")
     parser.add_argument("--input_csv", required=True)
     parser.add_argument("--output_csv", required=True)
-    parser.add_argument("--hf_token", required=True)
+    parser.add_argument("--hf_token", default=os.environ.get("HF_TOKEN"))
     parser.add_argument("--hf_cache_dir", default=None)
     parser.add_argument("--model_id", default="google/gemma-4-E4B-it")
     parser.add_argument("--judge_type", default="brainrot", choices=["brainrot", "coherence", "brainrot,coherence"])
@@ -106,6 +106,8 @@ def main():
         help="Row slice N/M (1-indexed), e.g. 1/4",
     )
     args = parser.parse_args()
+    if not args.hf_token:
+        parser.error("--hf_token is required (or set the HF_TOKEN environment variable)")
 
     row_slice_idx = None
     row_slice_total = None

@@ -4,8 +4,9 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-cd "$SCRIPT_DIR"
+cd "$PROJECT_DIR"
 
 # Activate virtualenv if available
 if [ -f ".venv/bin/activate" ]; then
@@ -21,8 +22,8 @@ export NVIDIA_TF32_OVERRIDE=1
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True"
 export TORCH_SHOW_CPP_STACKTRACES=0
 export TORCH_LOGS="-all"
-export OMP_NUM_THREADS="$OMP_NUM_THREADS"
-export MKL_NUM_THREADS="$OMP_NUM_THREADS"
+export OMP_NUM_THREADS="${OMP_NUM_THREADS:-8}"
+export MKL_NUM_THREADS="${OMP_NUM_THREADS}"
 export NCCL_DEBUG=WARN
 ulimit -n 65536 2>/dev/null || true
 

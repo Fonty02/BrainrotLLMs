@@ -1,17 +1,0 @@
-Repo card metadata block was not found. Setting CardData to empty.
-Loading weights:   0%|          | 0/1951 [00:00<?, ?it/s]Loading weights:   7%|▋         | 131/1951 [00:00<00:01, 1245.20it/s]Loading weights:  13%|█▎        | 256/1951 [00:00<00:01, 1113.87it/s]Loading weights:  19%|█▉        | 369/1951 [00:00<00:01, 1109.29it/s]Loading weights:  25%|██▍       | 481/1951 [00:00<00:01, 1074.71it/s]Loading weights:  30%|███       | 589/1951 [00:00<00:01, 1035.59it/s]Loading weights:  36%|███▌      | 697/1951 [00:00<00:01, 1029.30it/s]Loading weights:  41%|████      | 801/1951 [00:06<00:21, 53.32it/s]  Loading weights:  45%|████▍     | 871/1951 [00:07<00:16, 64.35it/s]Loading weights:  47%|████▋     | 926/1951 [00:07<00:13, 75.09it/s]Loading weights:  50%|████▉     | 970/1951 [00:07<00:11, 85.28it/s]Loading weights:  52%|█████▏    | 1007/1951 [00:07<00:09, 96.19it/s]Loading weights:  53%|█████▎    | 1040/1951 [00:07<00:09, 99.56it/s]Loading weights:  55%|█████▍    | 1066/1951 [00:08<00:08, 99.06it/s]Loading weights:  56%|█████▌    | 1087/1951 [00:08<00:09, 95.17it/s]Loading weights:  57%|█████▋    | 1105/1951 [00:08<00:08, 100.04it/s]Loading weights:  57%|█████▋    | 1121/1951 [00:08<00:08, 101.68it/s]Loading weights:  58%|█████▊    | 1136/1951 [00:08<00:07, 103.84it/s]Loading weights:  59%|█████▉    | 1150/1951 [00:09<00:07, 102.06it/s]Loading weights:  60%|█████▉    | 1163/1951 [00:09<00:07, 102.39it/s]Loading weights:  60%|██████    | 1175/1951 [00:09<00:07, 100.22it/s]Loading weights:  61%|██████    | 1187/1951 [00:09<00:07, 98.51it/s] Loading weights:  61%|██████▏   | 1198/1951 [00:09<00:07, 94.39it/s]Loading weights:  62%|██████▏   | 1210/1951 [00:09<00:07, 93.43it/s]Loading weights:  63%|██████▎   | 1223/1951 [00:09<00:07, 91.12it/s]Loading weights:  64%|██████▎   | 1239/1951 [00:09<00:07, 99.18it/s]Loading weights:  64%|██████▍   | 1253/1951 [00:10<00:06, 101.12it/s]Loading weights:  65%|██████▍   | 1267/1951 [00:10<00:06, 102.76it/s]Loading weights:  66%|██████▌   | 1281/1951 [00:10<00:06, 102.66it/s]Loading weights:  69%|██████▉   | 1346/1951 [00:10<00:02, 233.23it/s]Loading weights:  78%|███████▊  | 1526/1951 [00:10<00:00, 630.20it/s]Loading weights:  87%|████████▋ | 1706/1951 [00:10<00:00, 933.39it/s]Loading weights:  96%|█████████▌| 1874/1951 [00:10<00:00, 1134.96it/s]Loading weights: 100%|██████████| 1951/1951 [00:10<00:00, 179.54it/s] 
-Extracting activations:   0%|          | 0/250 [00:00<?, ?it/s]Extracting activations:   0%|          | 0/250 [00:07<?, ?it/s]
-Traceback (most recent call last):
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 618, in <module>
-    main()
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 542, in main
-    pos_acts, neg_acts, num_pairs = extract_dataset_activations(
-                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_experiment.py", line 306, in extract_dataset_activations
-    pos_activations[layer_key].append(storage[layer_key].cpu())
-                                      ~~~~~~~^^^^^^^^^^^
-KeyError: '75pct'
-
-real	3m15.840s
-user	0m18.169s
-sys	0m16.291s
