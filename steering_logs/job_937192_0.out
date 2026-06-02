@@ -1,0 +1,109 @@
+Mon Jun  1 20:47:23 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.95.05              Driver Version: 580.95.05      CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA H100 80GB HBM3          Off |   00000000:E3:00.0 Off |                    0 |
+| N/A   33C    P0             71W /  700W |       5MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+CUDA: nvcc not in PATH
+========================================
+Brainrot Steering Experiment
+Model:     meta-llama/Llama-3.1-8B-Instruct
+Technique: dom
+Layer PCT: 25
+Output:    /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/Llama-3.1-8B-Instruct_dom_L25.csv
+========================================
+Using device: cuda
+Loading dataset...
+Loading model: meta-llama/Llama-3.1-8B-Instruct
+Model has 32 layers. Center 25% = index 8; steering layers: [8]
+Extracted activations from 2000 pairs
+Starting experiment loop: 6 coefficients × 100 questions = 600 generations
+Output CSV: /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/Llama-3.1-8B-Instruct_dom_L25.csv
+
+=== Steering layers [8] (center 8) ===
+Natural style-shift norm at center layer: 1.974
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=1.0 Q1/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=1.0 Q10/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=1.0 Q20/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=1.0 Q30/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=1.0 Q40/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=1.0 Q50/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=1.0 Q60/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=1.0 Q70/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=1.0 Q80/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=1.0 Q90/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=1.0 Q100/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=2.0 Q1/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=2.0 Q10/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=2.0 Q20/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=2.0 Q30/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=2.0 Q40/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=2.0 Q50/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=2.0 Q60/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=2.0 Q70/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=2.0 Q80/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=2.0 Q90/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=2.0 Q100/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=3.0 Q1/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=3.0 Q10/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=3.0 Q20/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=3.0 Q30/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=3.0 Q40/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=3.0 Q50/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=3.0 Q60/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=3.0 Q70/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=3.0 Q80/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=3.0 Q90/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=3.0 Q100/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=4.0 Q1/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=4.0 Q10/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=4.0 Q20/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=4.0 Q30/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=4.0 Q40/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=4.0 Q50/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=4.0 Q60/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=4.0 Q70/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=4.0 Q80/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=4.0 Q90/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=4.0 Q100/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-2.0 Q1/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-2.0 Q10/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-2.0 Q20/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-2.0 Q30/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-2.0 Q40/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-2.0 Q50/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-2.0 Q60/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-2.0 Q70/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-2.0 Q80/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-2.0 Q90/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-2.0 Q100/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-4.0 Q1/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-4.0 Q10/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-4.0 Q20/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-4.0 Q30/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-4.0 Q40/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-4.0 Q50/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-4.0 Q60/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-4.0 Q70/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-4.0 Q80/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-4.0 Q90/100
+[meta-llama/Llama-3.1-8B-Instruct] [dom] center=8 band=0 coeff=-4.0 Q100/100
+
+Done! Results saved to /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/Llama-3.1-8B-Instruct_dom_L25.csv
+========================================
+Completed: meta-llama/Llama-3.1-8B-Instruct | dom | L25
+========================================

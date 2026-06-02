@@ -1,0 +1,10 @@
+usage: judge.py [-h] --input_csv INPUT_CSV --output_csv OUTPUT_CSV
+                [--hf_token HF_TOKEN] [--hf_cache_dir HF_CACHE_DIR]
+                [--model_id MODEL_ID]
+                [--judge_type {brainrot,coherence,brainrot,coherence}]
+                [--batch_size BATCH_SIZE] [--row_slice ROW_SLICE]
+judge.py: error: --hf_token is required (or set the HF_TOKEN environment variable)
+
+real	0m17.976s
+user	0m7.359s
+sys	0m2.733s

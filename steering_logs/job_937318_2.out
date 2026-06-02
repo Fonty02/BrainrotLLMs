@@ -1,0 +1,109 @@
+Tue Jun  2 00:43:47 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.95.05              Driver Version: 580.95.05      CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA H100 80GB HBM3          Off |   00000000:04:00.0 Off |                    0 |
+| N/A   35C    P0             71W /  700W |       5MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+CUDA: nvcc not in PATH
+========================================
+Brainrot Steering Experiment
+Model:     Qwen/Qwen2.5-7B-Instruct
+Technique: aas
+Layer PCT: 75
+Output:    /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/Qwen2.5-7B-Instruct_aas_L75.csv
+========================================
+Using device: cuda
+Loading dataset...
+Loading model: Qwen/Qwen2.5-7B-Instruct
+Model has 28 layers. Center 75% = index 21; steering layers: [21]
+Extracted activations from 2000 pairs
+Starting experiment loop: 6 coefficients × 100 questions = 600 generations
+Output CSV: /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/Qwen2.5-7B-Instruct_aas_L75.csv
+
+=== Steering layers [21] (center 21) ===
+Natural style-shift norm at center layer: 40.980
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=15.0 Q1/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=15.0 Q10/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=15.0 Q20/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=15.0 Q30/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=15.0 Q40/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=15.0 Q50/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=15.0 Q60/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=15.0 Q70/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=15.0 Q80/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=15.0 Q90/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=15.0 Q100/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=25.0 Q1/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=25.0 Q10/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=25.0 Q20/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=25.0 Q30/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=25.0 Q40/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=25.0 Q50/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=25.0 Q60/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=25.0 Q70/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=25.0 Q80/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=25.0 Q90/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=25.0 Q100/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=35.0 Q1/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=35.0 Q10/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=35.0 Q20/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=35.0 Q30/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=35.0 Q40/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=35.0 Q50/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=35.0 Q60/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=35.0 Q70/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=35.0 Q80/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=35.0 Q90/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=35.0 Q100/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=45.0 Q1/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=45.0 Q10/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=45.0 Q20/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=45.0 Q30/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=45.0 Q40/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=45.0 Q50/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=45.0 Q60/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=45.0 Q70/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=45.0 Q80/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=45.0 Q90/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=45.0 Q100/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-25.0 Q1/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-25.0 Q10/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-25.0 Q20/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-25.0 Q30/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-25.0 Q40/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-25.0 Q50/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-25.0 Q60/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-25.0 Q70/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-25.0 Q80/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-25.0 Q90/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-25.0 Q100/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-45.0 Q1/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-45.0 Q10/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-45.0 Q20/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-45.0 Q30/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-45.0 Q40/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-45.0 Q50/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-45.0 Q60/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-45.0 Q70/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-45.0 Q80/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-45.0 Q90/100
+[Qwen/Qwen2.5-7B-Instruct] [aas] center=21 band=0 coeff=-45.0 Q100/100
+
+Done! Results saved to /lustrehome/fonty/CliCIT2026/BrainrotLLMs/steering_results/Qwen2.5-7B-Instruct_aas_L75.csv
+========================================
+Completed: Qwen/Qwen2.5-7B-Instruct | aas | L75
+========================================

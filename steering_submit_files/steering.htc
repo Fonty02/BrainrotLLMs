@@ -10,6 +10,4 @@ error = steering_logs/job_$(Cluster)_$(Process).err
 arguments = "$(MODEL) $(TECHNIQUE) $(LAYER_PCT)"
 queue MODEL, TECHNIQUE, LAYER_PCT from (
   Qwen/Qwen2.5-7B-Instruct aas 25
-  Qwen/Qwen2.5-7B-Instruct aas 50
-  Qwen/Qwen2.5-7B-Instruct aas 75
 )

@@ -1,0 +1,7 @@
+========================================
+Brainrot Judge
+Input CSV:    (from --input_csv)
+Output CSV:   (from --output_csv)
+========================================
+Command: judge.py --input_csv steering_results/gemma-4-E2B-it_aas_L50.csv --output_csv steering_results/gemma-4-E2B-it_aas_L50_dual_judged.csv --model_id google/gemma-4-E4B-it --judge_type brainrot,coherence --batch_size 16 --hf_cache_dir /lustrehome/fonty/huggingface_cache
+========================================
