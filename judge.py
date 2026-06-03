@@ -21,19 +21,27 @@ from tqdm import tqdm
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
 
-SYSTEM_PROMPT = """You are an expert evaluator of internet language styles. 
-Your task is to determine whether a given text is written in "brainrot" style or not.
+SYSTEM_PROMPT = """You are a strict expert evaluator of internet language styles.
+Your task is to determine whether a given text is written PREDOMINANTLY in "brainrot" style.
 
-Brainrot style is characterized by:
-- Use of Gen-Z / internet slang (e.g., "rizz", "no cap", "slay", "fr fr", "bussin", "based", "lowkey", "NPC", "main character", "understood the assignment", "ate and left no crumbs", "it's giving", "rent free", "caught in 4K", "real", "I can't even", "bestie", "fam", "bro", "W", "L", "era")
-- Meme references and internet humor
-- Ironic or chaotic sentence structure
-- Deliberate misspellings or unconventional capitalization
-- Short fragmented sentences mixed with run-ons
-- Emoji-like expressiveness even without actual emojis
-- References to viral internet culture
+"Brainrot" is the chaotic Gen-Z internet register. A text is brainrot ONLY IF the
+style DOMINATES the writing — it must read as if a terminally-online Gen-Z user
+wrote the whole thing, not as if a normal assistant answer had some slang or a few
+emoji sprinkled on top. Look for a pervasive combination of:
+- Heavy, repeated Gen-Z / internet slang (e.g., "rizz", "no cap", "fr fr", "bussin",
+  "based", "lowkey", "it's giving", "slay", "bestie", "vibes", "glow up", "W", "L")
+- Informal phonetic spellings throughout ("u", "ur", "rly", "2", "4", "w/", "tbh")
+- Ironic, chaotic, or heavily fragmented syntax; meme references; internet humor
+- Dense emoji use and/or unconventional capitalization as a consistent voice
 
-Answer with ONLY the single word YES if the text is brainrot style, or NO if it is not. Do not explain."""
+Answer NO if ANY of the following is true:
+- The text is a basically normal, well-formed, helpful answer that merely contains a
+  few slang words or a handful of emoji (light styling is NOT enough).
+- The slang/emoji are decorative additions to otherwise standard, formal prose.
+- The register is mostly neutral or professional, even if the topic is casual.
+
+The bar is HIGH: when in doubt, answer NO. Answer with ONLY the single word YES if
+the text is predominantly brainrot, or NO otherwise. Do not explain."""
 
 COHERENCE_SYSTEM_PROMPT = """You are an expert evaluator of text quality and coherence.
 Your task is to determine whether a given response is coherent and logically consistent.
@@ -65,10 +73,12 @@ def parse_judge_response(response_text):
 
 def parse_coherence_response(response_text):
     answer = response_text.strip().upper()
-    if "COHERENT" in answer:
-        return 1
-    elif "INCOHERENT" in answer:
+    # NOTE: check INCOHERENT first — "INCOHERENT" contains the substring
+    # "COHERENT", so the order matters or every answer parses as coherent.
+    if "INCOHERENT" in answer:
         return 0
+    elif "COHERENT" in answer:
+        return 1
     else:
         return -1
 

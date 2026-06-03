@@ -56,17 +56,29 @@ else:
 
 dfs = [pd.read_csv(f) for f in files]
 df = pd.concat(dfs, ignore_index=True)
+
+# Drop accidental duplicate rows (a config re-run appends to the same CSV).
+df = df.drop_duplicates(
+    subset=["model_name", "technique", "layer_pct", "coefficient", "question_id"]
+).reset_index(drop=True)
+
 df["model_short"] = df["model_name"].map(MODEL_SHORT)
 df["coeff_sign"] = np.where(df["coefficient"] > 0, "positive", "negative")
 df["is_brainrot"] = pd.to_numeric(df["is_brainrot"], errors="coerce").fillna(-1).astype(int)
 
-# Degeneracy / breakage gate. If the coherence judge was run, use it (a response
-# only counts as real brainrot if it is BOTH brainrot AND coherent); otherwise
-# fall back to the text heuristic.
-if "is_coherent" in df.columns:
+# Degeneracy / breakage gate. Prefer recomputing coherence from the judge's raw
+# text: the stored is_coherent column is unreliable on older runs (a parser bug
+# scored "INCOHERENT" as coherent because it contains the substring "COHERENT").
+if "judge_coherence_raw" in df.columns:
+    _raw = df["judge_coherence_raw"].astype(str).str.strip().str.upper()
+    df["is_coherent"] = np.where(_raw.str.contains("INCOHERENT"), 0,
+                                 np.where(_raw.str.contains("COHERENT"), 1, -1))
+    df["degenerate"] = df["is_coherent"] != 1
+    GATE = "judge coherence (recomputed from raw)"
+elif "is_coherent" in df.columns:
     df["is_coherent"] = pd.to_numeric(df["is_coherent"], errors="coerce").fillna(-1).astype(int)
     df["degenerate"] = df["is_coherent"] != 1
-    GATE = "judge coherence (is_coherent != 1)"
+    GATE = "judge coherence (stored column)"
 else:
     df["degenerate"] = df["response"].apply(is_degenerate)
     GATE = "text heuristic"

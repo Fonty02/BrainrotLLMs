@@ -1,339 +1,318 @@
-"""Plot steering experiment results from judged CSVs.
+"""Publication figures for the brainrot activation-steering experiment.
 
-Degenerate (garbled/repetitive) responses are filtered out before analysis.
+Produces two groups of figures in plots/:
+  RESULTS   (fig_results_*)  — the headline findings
+  ABLATION  (fig_ablation_*) — supporting / sensitivity analyses
+plus paper_tables.txt with the key numbers.
+
+Metrics (all judged by a model judge):
+  br  = brainrot                      (is_brainrot == 1)
+  coh = coherent                      (coherence judge != INCOHERENT)
+  cb  = COHERENT BRAINROT  = br & coh  ← headline success metric
+  inc = incoherent (breakage)         = not coh
+
+Coherence is recomputed from judge_coherence_raw because the stored is_coherent
+column is corrupted on older runs (a parser bug scored "INCOHERENT" as coherent,
+since the string contains the substring "COHERENT").
 """
 
 from pathlib import Path
 import re
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.ticker as mticker
-import numpy as np
 
 RESULTS_DIR = Path("steering_results")
 OUT_DIR = Path("plots")
 OUT_DIR.mkdir(exist_ok=True)
+KEY = ["model_name", "technique", "layer_pct", "coefficient", "question_id"]
 
 MODEL_SHORT = {
     "Qwen/Qwen2.5-7B-Instruct": "Qwen2.5-7B",
     "meta-llama/Llama-3.1-8B-Instruct": "Llama-3.1-8B",
     "google/gemma-4-E2B-it": "Gemma-4-2B",
 }
-TECHNIQUE_LABEL = {"dom": "DoM", "pca": "PCA", "aas": "AAS"}
+MODEL_ORDER = ["Qwen2.5-7B", "Llama-3.1-8B", "Gemma-4-2B"]
+TECHS = ["dom", "pca", "aas"]
+TECH_LABEL = {"dom": "DoM", "pca": "PCA", "aas": "AAS"}
+
+# Colours
+C_BR, C_CB, C_INC = "#d62728", "#2ca02c", "#8c8c8c"     # brainrot / coherent-brainrot / incoherent
+TECH_C = {"dom": "#1f77b4", "pca": "#ff7f0e", "aas": "#2ca02c"}
+MODEL_C = {"Qwen2.5-7B": "#4c72b0", "Llama-3.1-8B": "#dd8452", "Gemma-4-2B": "#55a868"}
+LAYER_C = {25: "#e41a1c", 50: "#377eb8", 75: "#4daf4a"}
+
+plt.rcParams.update({
+    "figure.dpi": 120, "savefig.dpi": 220, "savefig.bbox": "tight",
+    "font.size": 11, "axes.titlesize": 12, "axes.titleweight": "bold",
+    "axes.labelsize": 11, "legend.fontsize": 9, "axes.grid": True,
+    "grid.alpha": 0.25, "axes.spines.top": False, "axes.spines.right": False,
+})
 
 
-def is_degenerate(text: str) -> bool:
+def _is_degenerate(text):
     t = str(text).strip()
-    if len(t) < 20:
+    if len(t.split()) < 5:
         return True
-    tokens = t.split()
-    if len(tokens) < 5:
+    toks = t.split()
+    if sum(toks[i] == toks[i - 1] for i in range(1, len(toks))) >= 5:
         return True
-    runs = 0
-    for i in range(1, len(tokens)):
-        if tokens[i] == tokens[i - 1]:
-            runs += 1
-    if runs >= 5:
-        return True
-    alpha_chars = re.findall(r"[a-zA-Z]", t)
-    if len(alpha_chars) > 0:
-        unique_count = len(set(c.lower() for c in alpha_chars))
-        if unique_count < 8:
-            return True
-    return False
+    a = re.findall(r"[a-zA-Z]", t)
+    return bool(a) and len(set(c.lower() for c in a)) < 8
 
 
-# ── Load all judged CSVs (prefer dual-judged: brainrot + coherence) ──
-dual_files = sorted(RESULTS_DIR.glob("*_dual_judged.csv"))
-if dual_files:
-    files = dual_files
-else:
-    files = [f for f in sorted(RESULTS_DIR.glob("*_judged.csv"))
-             if not f.name.endswith("_dual_judged.csv")]
-dfs = [pd.read_csv(f) for f in files]
-
-df_all = pd.concat(dfs, ignore_index=True)
-df_all["model_short"] = df_all["model_name"].map(MODEL_SHORT)
-df_all["coeff_sign"] = np.where(df_all["coefficient"] > 0, "positive", "negative")
-df_all["is_brainrot"] = pd.to_numeric(df_all["is_brainrot"], errors="coerce").fillna(-1).astype(int)
-
-# Breakage gate: judge coherence if available, else text heuristic.
-if "is_coherent" in df_all.columns:
-    df_all["is_coherent"] = pd.to_numeric(df_all["is_coherent"], errors="coerce").fillna(-1).astype(int)
-    df_all["degenerate"] = df_all["is_coherent"] != 1
-else:
-    df_all["degenerate"] = df_all["response"].apply(is_degenerate)
-df_clean = df_all[~df_all["degenerate"]]
-
-print(f"Loaded {len(df_all)} rows from {len(dfs)} files")
-print(f"Degenerate filtered: {df_all['degenerate'].sum()} rows removed")
-print(f"Clean rows: {len(df_clean)}")
-print(f"Models: {df_clean['model_short'].unique().tolist()}")
-print(f"Techniques: {df_clean['technique'].unique().tolist()}")
-print(f"Coefficients: {sorted(df_clean['coefficient'].unique())}")
-
-
-# ── Helper: compute brainrot rate with binomial CI ─────────────────
-def brainrot_rate(group):
-    n = len(group)
-    k = (group["is_brainrot"] == 1).sum()
-    rate = k / n if n > 0 else 0
-    se = np.sqrt(rate * (1 - rate) / n) if n > 0 else 0
-    ci_low = max(0, rate - 1.96 * se)
-    ci_high = min(1, rate + 1.96 * se)
-    return pd.Series({"brainrot_rate": rate, "ci_low": ci_low, "ci_high": ci_high, "n": n})
+def load():
+    dual = sorted(RESULTS_DIR.glob("*_dual_judged.csv"))
+    files = dual if dual else [f for f in sorted(RESULTS_DIR.glob("*_judged.csv"))
+                               if not f.name.endswith("_dual_judged.csv")]
+    df = pd.concat([pd.read_csv(f) for f in files], ignore_index=True)
+    df = df.drop_duplicates(subset=KEY).reset_index(drop=True)
+    df["model_short"] = df["model_name"].map(MODEL_SHORT)
+    df["br"] = pd.to_numeric(df["is_brainrot"], errors="coerce").fillna(-1).astype(int).clip(lower=0)
+    if "judge_coherence_raw" in df.columns:
+        raw = df["judge_coherence_raw"].astype(str).str.upper()
+        df["coh"] = np.where(raw.str.contains("INCOHERENT"), 0,
+                             np.where(raw.str.contains("COHERENT"), 1, -1))
+    elif "is_coherent" in df.columns:
+        df["coh"] = pd.to_numeric(df["is_coherent"], errors="coerce").fillna(-1).astype(int)
+    else:
+        df["coh"] = (~df["response"].apply(_is_degenerate)).astype(int)
+    df["cb"] = ((df["br"] == 1) & (df["coh"] == 1)).astype(int)
+    df["inc"] = (df["coh"] == 0).astype(int)
+    df["pos"] = df["coefficient"] > 0
+    # ordinal "strength level" of the positive coefficients within each technique
+    df["pos_level"] = np.nan
+    for t in TECHS:
+        pcs = sorted(df.loc[(df.technique == t) & df.pos, "coefficient"].unique())
+        m = {c: i + 1 for i, c in enumerate(pcs)}
+        idx = (df.technique == t) & df.pos
+        df.loc[idx, "pos_level"] = df.loc[idx, "coefficient"].map(m)
+    return df
 
 
-# ── Plot 1: Dose-response curves (per model, per technique) ───────
-fig, axes = plt.subplots(3, 3, figsize=(18, 14), sharey=True)
+def rate_ci(x):
+    x = np.asarray(x, float)
+    n = len(x)
+    if n == 0:
+        return 0.0, 0.0, 0.0, 0
+    p = x.mean()
+    se = np.sqrt(p * (1 - p) / n)
+    return p, max(0, p - 1.96 * se), min(1, p + 1.96 * se), n
 
-for col, technique in enumerate(["dom", "pca", "aas"]):
-    for row, (model_full, model_short) in enumerate(MODEL_SHORT.items()):
-        ax = axes[row][col]
-        subset = df_clean[(df_clean["model_name"] == model_full) & (df_clean["technique"] == technique)]
-        if subset.empty:
-            ax.set_title(f"{model_short} × {TECHNIQUE_LABEL[technique]}\n(no clean data)")
-            continue
 
-        agg = subset.groupby(["layer_pct", "coefficient"]).apply(brainrot_rate).reset_index()
+def agg(df, by, col):
+    rows = []
+    for kv, g in df.groupby(by):
+        p, lo, hi, n = rate_ci(g[col])
+        rows.append((*(kv if isinstance(kv, tuple) else (kv,)), p, lo, hi, n))
+    cols = (by if isinstance(by, list) else [by]) + ["p", "lo", "hi", "n"]
+    return pd.DataFrame(rows, columns=cols)
 
-        for lpct, color in [(25, "#e41a1c"), (50, "#377eb8"), (75, "#4daf4a")]:
-            d = agg[agg["layer_pct"] == lpct].sort_values("coefficient")
-            if d.empty:
-                continue
-            ax.errorbar(d["coefficient"], d["brainrot_rate"],
-                        yerr=[d["brainrot_rate"] - d["ci_low"], d["ci_high"] - d["brainrot_rate"]],
-                        marker="o", color=color, label=f"L{lpct}%", capsize=3, linewidth=1.5)
 
-        ax.axhline(0, color="gray", linestyle="--", alpha=0.3)
-        ax.set_title(f"{model_short} × {TECHNIQUE_LABEL[technique]}", fontsize=11, fontweight="bold")
-        ax.set_xlabel("Coefficient")
-        if col == 0:
-            ax.set_ylabel("Brainrot Rate")
-        ax.legend(fontsize=8)
-        ax.grid(True, alpha=0.3)
+df = load()
+POS = df[df.pos]
+print(f"Loaded {len(df)} rows ({len(df)//600} configs). "
+      f"brainrot={df.br.mean()*100:.1f}%  incoherent={df.inc.mean()*100:.1f}%  "
+      f"coherent-brainrot={df.cb.mean()*100:.1f}%")
 
-fig.suptitle("Dose-Response: Brainrot Rate vs Steering Coefficient (clean)", fontsize=14, fontweight="bold", y=1.01)
+
+# ════════════════════════════════════════════════════════════════════
+# RESULTS 1 — Brainrot / coherence trade-off (dose–response), per technique
+# ════════════════════════════════════════════════════════════════════
+fig, axes = plt.subplots(1, 3, figsize=(15, 4.3), sharey=True)
+for ax, t in zip(axes, TECHS):
+    sub = POS[POS.technique == t]
+    for col, c, lab in [("br", C_BR, "Brainrot"),
+                        ("cb", C_CB, "Coherent brainrot"),
+                        ("inc", C_INC, "Incoherent (broken)")]:
+        a = agg(sub, "coefficient", col).sort_values("coefficient")
+        ax.plot(a.coefficient, a.p * 100, "-o", color=c, label=lab, lw=2, ms=5)
+        ax.fill_between(a.coefficient, a.lo * 100, a.hi * 100, color=c, alpha=0.12)
+    ax.set_title(f"{TECH_LABEL[t]}")
+    ax.set_xlabel("Steering coefficient" + (" (degrees)" if t == "aas" else " (×natural diff)"))
+axes[0].set_ylabel("Rate (%)")
+axes[0].legend(loc="upper left", frameon=False)
+fig.suptitle("Brainrot–coherence trade-off: a sweet spot at intermediate steering strength",
+             fontsize=13, fontweight="bold")
 fig.tight_layout()
-fig.savefig(OUT_DIR / "dose_response.png", dpi=150, bbox_inches="tight")
+fig.savefig(OUT_DIR / "fig_results_1_tradeoff.png")
 plt.close(fig)
-print("Saved dose_response.png")
+print("saved fig_results_1_tradeoff.png")
 
-# ── Plot 2: Heatmap — brainrot rate by technique × layer × coeff ──
-fig, axes = plt.subplots(1, 3, figsize=(20, 6))
 
-for idx, model_full in enumerate(MODEL_SHORT):
-    model_short = MODEL_SHORT[model_full]
-    ax = axes[idx]
-    subset = df_clean[df_clean["model_name"] == model_full]
-    agg = subset.groupby(["technique", "layer_pct", "coefficient"]).apply(brainrot_rate).reset_index()
-
-    agg["config"] = agg["technique"].map(TECHNIQUE_LABEL) + " L" + agg["layer_pct"].astype(str) + "%"
-    pivot = agg.pivot_table(index="config", columns="coefficient", values="brainrot_rate")
-    coeffs = sorted(agg["coefficient"].unique())
-    pivot = pivot.reindex(columns=coeffs)
-
-    if pivot.empty:
-        ax.set_title(f"{model_short}\n(no clean data)")
-        continue
-
-    im = ax.imshow(pivot.values, aspect="auto", cmap="RdBu_r", vmin=0, vmax=1)
-    ax.set_xticks(range(len(coeffs)))
-    ax.set_xticklabels([f"{c:+.0f}" for c in coeffs])
-    ax.set_yticks(range(len(pivot.index)))
-    ax.set_yticklabels(pivot.index, fontsize=9)
-    ax.set_title(model_short, fontsize=12, fontweight="bold")
-
-    for i in range(pivot.shape[0]):
-        for j in range(pivot.shape[1]):
-            v = pivot.iloc[i, j]
-            if pd.notna(v):
-                color = "white" if v < 0.4 or v > 0.6 else "black"
-                ax.text(j, i, f"{v:.2f}", ha="center", va="center", fontsize=8, color=color)
-
-    plt.colorbar(im, ax=ax, label="Brainrot Rate", shrink=0.85)
-
-fig.suptitle("Brainrot Rate Heatmap by Configuration (clean only)", fontsize=14, fontweight="bold")
+# ════════════════════════════════════════════════════════════════════
+# RESULTS 2 — Coherent-brainrot rate by model × technique (positive coeffs)
+# ════════════════════════════════════════════════════════════════════
+fig, ax = plt.subplots(figsize=(8.5, 5))
+x = np.arange(len(MODEL_ORDER))
+w = 0.26
+for i, t in enumerate(TECHS):
+    ps, los, his = [], [], []
+    for m in MODEL_ORDER:
+        p, lo, hi, n = rate_ci(POS[(POS.model_short == m) & (POS.technique == t)]["cb"])
+        ps.append(p * 100); los.append((p - lo) * 100); his.append((hi - p) * 100)
+    ax.bar(x + (i - 1) * w, ps, w, color=TECH_C[t], label=TECH_LABEL[t],
+           yerr=[los, his], capsize=3, error_kw=dict(lw=1))
+ax.set_xticks(x); ax.set_xticklabels(MODEL_ORDER)
+ax.set_ylabel("Coherent-brainrot rate (%)")
+ax.set_title("Steering induces coherent brainrot — DoM and AAS work, PCA fails")
+ax.legend(title="Technique", frameon=False)
 fig.tight_layout()
-fig.savefig(OUT_DIR / "heatmap.png", dpi=150, bbox_inches="tight")
+fig.savefig(OUT_DIR / "fig_results_2_model_technique.png")
 plt.close(fig)
-print("Saved heatmap.png")
+print("saved fig_results_2_model_technique.png")
 
-# ── Plot 3: Positive vs negative coefficients summary ─────────────
-fig, ax = plt.subplots(figsize=(12, 6))
 
-summary = df_clean.groupby(["model_short", "technique", "layer_pct", "coeff_sign"]).apply(brainrot_rate).reset_index()
+# ════════════════════════════════════════════════════════════════════
+# RESULTS 3 — Coherent-brainrot heatmap per model (technique×layer vs strength)
+# ════════════════════════════════════════════════════════════════════
+fig, axes = plt.subplots(1, 3, figsize=(16, 4.6))
+levels = sorted(POS.pos_level.dropna().unique())
+for ax, m in zip(axes, MODEL_ORDER):
+    sub = POS[POS.model_short == m]
+    rows = [f"{TECH_LABEL[t]} L{lp}" for t in TECHS for lp in (25, 50, 75)]
+    mat = np.full((len(rows), len(levels)), np.nan)
+    for ri, (t, lp) in enumerate([(t, lp) for t in TECHS for lp in (25, 50, 75)]):
+        for ci, lv in enumerate(levels):
+            g = sub[(sub.technique == t) & (sub.layer_pct == lp) & (sub.pos_level == lv)]
+            if len(g):
+                mat[ri, ci] = g["cb"].mean() * 100
+    im = ax.imshow(mat, aspect="auto", cmap="viridis", vmin=0, vmax=60)
+    ax.set_xticks(range(len(levels)))
+    ax.set_xticklabels([f"L{int(l)}" for l in levels])
+    ax.set_yticks(range(len(rows))); ax.set_yticklabels(rows, fontsize=8)
+    ax.set_xlabel("Steering strength (low→high)")
+    ax.set_title(m)
+    for ri in range(mat.shape[0]):
+        for ci in range(mat.shape[1]):
+            if not np.isnan(mat[ri, ci]):
+                ax.text(ci, ri, f"{mat[ri, ci]:.0f}", ha="center", va="center",
+                        color="white" if mat[ri, ci] < 38 else "black", fontsize=7)
+    ax.grid(False)
+fig.colorbar(im, ax=axes, label="Coherent-brainrot (%)", shrink=0.8, pad=0.01)
+fig.suptitle("Where steering works: coherent-brainrot across configurations",
+             fontsize=13, fontweight="bold")
+fig.savefig(OUT_DIR / "fig_results_3_heatmap.png")
+plt.close(fig)
+print("saved fig_results_3_heatmap.png")
 
-configs = sorted(summary[["model_short", "technique", "layer_pct"]].drop_duplicates().itertuples(index=False),
-                 key=lambda x: (x[0], x[1], x[2]))
 
-x_labels = [f"{m}\n{TECHNIQUE_LABEL[t]} L{l}%" for m, t, l in configs]
-x = np.arange(len(configs))
-width = 0.35
+# ════════════════════════════════════════════════════════════════════
+# ABLATION 1 — Layer depth
+# ════════════════════════════════════════════════════════════════════
+fig, ax = plt.subplots(figsize=(7, 5))
+for t in TECHS:
+    a = agg(POS[POS.technique == t], "layer_pct", "cb").sort_values("layer_pct")
+    ax.errorbar(a.layer_pct, a.p * 100, yerr=[(a.p - a.lo) * 100, (a.hi - a.p) * 100],
+                marker="o", color=TECH_C[t], label=TECH_LABEL[t], lw=2, capsize=3)
+ax.set_xticks([25, 50, 75])
+ax.set_xlabel("Steering layer (% of depth)")
+ax.set_ylabel("Coherent-brainrot rate (%)")
+ax.set_title("Ablation: deeper layers steer better")
+ax.legend(title="Technique", frameon=False)
+fig.tight_layout()
+fig.savefig(OUT_DIR / "fig_ablation_1_layer.png")
+plt.close(fig)
+print("saved fig_ablation_1_layer.png")
 
-pos_rates, neg_rates = [], []
 
-for m, t, l in configs:
-    r_pos = summary[(summary["model_short"] == m) & (summary["technique"] == t) &
-                     (summary["layer_pct"] == l) & (summary["coeff_sign"] == "positive")]
-    r_neg = summary[(summary["model_short"] == m) & (summary["technique"] == t) &
-                     (summary["layer_pct"] == l) & (summary["coeff_sign"] == "negative")]
-    pos_rates.append(r_pos["brainrot_rate"].values[0] if not r_pos.empty else 0)
-    neg_rates.append(r_neg["brainrot_rate"].values[0] if not r_neg.empty else 0)
+# ════════════════════════════════════════════════════════════════════
+# ABLATION 2 — Direction & magnitude (full signed sweep): incoherence U-shape
+# ════════════════════════════════════════════════════════════════════
+fig, axes = plt.subplots(1, 3, figsize=(15, 4.3), sharey=True)
+for ax, t in zip(axes, TECHS):
+    sub = df[df.technique == t]
+    for col, c, lab in [("br", C_BR, "Brainrot"), ("inc", C_INC, "Incoherent")]:
+        a = agg(sub, "coefficient", col).sort_values("coefficient")
+        ax.plot(a.coefficient, a.p * 100, "-o", color=c, label=lab, lw=2, ms=5)
+    ax.axvline(0, color="k", lw=0.8, ls=":")
+    ax.set_title(TECH_LABEL[t])
+    ax.set_xlabel("Steering coefficient (signed)")
+axes[0].set_ylabel("Rate (%)")
+axes[0].legend(frameon=False, loc="upper center")
+fig.suptitle("Ablation: brainrot appears only for positive steering; large magnitude (either sign) breaks coherence",
+             fontsize=12, fontweight="bold")
+fig.tight_layout()
+fig.savefig(OUT_DIR / "fig_ablation_2_direction.png")
+plt.close(fig)
+print("saved fig_ablation_2_direction.png")
 
-ax.bar(x - width/2, pos_rates, width, label="Positive coeff (toward brainrot)", color="#d7191c")
-ax.bar(x + width/2, neg_rates, width, label="Negative coeff (away from brainrot)", color="#2b83ba")
 
-ax.axhline(0, color="gray", linewidth=0.5)
+# ════════════════════════════════════════════════════════════════════
+# ABLATION 3 — Question-category breakdown (coherent-brainrot, positive coeffs)
+# ════════════════════════════════════════════════════════════════════
+cats = sorted(POS["question_category"].dropna().unique())
+fig, ax = plt.subplots(figsize=(10, 5))
+x = np.arange(len(cats))
+w = 0.26
+for i, m in enumerate(MODEL_ORDER):
+    ps = [rate_ci(POS[(POS.model_short == m) & (POS.question_category == c)]["cb"])[0] * 100 for c in cats]
+    ax.bar(x + (i - 1) * w, ps, w, color=MODEL_C[m], label=m)
 ax.set_xticks(x)
-ax.set_xticklabels(x_labels, fontsize=7, rotation=45, ha="right")
-ax.set_ylabel("Brainrot Rate")
-ax.set_title("Brainrot Rate: Positive vs Negative Coefficients (clean)", fontsize=14, fontweight="bold")
-ax.legend(fontsize=10)
-ax.grid(True, alpha=0.3, axis="y")
-
+ax.set_xticklabels([c.replace(" & ", "\n& ").replace(" / ", "\n/ ") for c in cats], fontsize=8)
+ax.set_ylabel("Coherent-brainrot rate (%)")
+ax.set_title("Ablation: brainrot induction by question category")
+ax.legend(frameon=False)
 fig.tight_layout()
-fig.savefig(OUT_DIR / "positive_vs_negative.png", dpi=150, bbox_inches="tight")
+fig.savefig(OUT_DIR / "fig_ablation_3_category.png")
 plt.close(fig)
-print("Saved positive_vs_negative.png")
+print("saved fig_ablation_3_category.png")
 
-# ── Plot 4: Category breakdown ────────────────────────────────────
-fig, axes = plt.subplots(1, 3, figsize=(20, 6))
 
-categories = sorted(df_clean["question_category"].dropna().unique())
-
-for idx, model_full in enumerate(MODEL_SHORT):
-    model_short = MODEL_SHORT[model_full]
-    ax = axes[idx]
-    subset = df_clean[df_clean["model_name"] == model_full]
-
-    cat_data = []
-    for cat in categories:
-        for coeff in sorted(subset["coefficient"].unique()):
-            d = subset[(subset["question_category"] == cat) & (subset["coefficient"] == coeff)]
-            r = brainrot_rate(d)
-            if r["n"] > 0:
-                cat_data.append({"category": cat, "coefficient": coeff, **r.to_dict()})
-
-    cat_df = pd.DataFrame(cat_data)
-    if cat_df.empty:
-        ax.set_title(f"{model_short}\n(no clean data)")
-        continue
-
-    for cat, marker in zip(categories, ["o", "s", "D", "^", "v"]):
-        d = cat_df[cat_df["category"] == cat].sort_values("coefficient")
-        if d.empty:
-            continue
-        ax.plot(d["coefficient"], d["brainrot_rate"], marker=marker, label=cat, linewidth=1.5)
-
-    ax.axhline(0, color="gray", linestyle="--", alpha=0.3)
-    ax.set_title(model_short, fontsize=12, fontweight="bold")
-    ax.set_xlabel("Coefficient")
-    if idx == 0:
-        ax.set_ylabel("Brainrot Rate")
-    ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
-fig.suptitle("Brainrot Rate by Question Category (clean)", fontsize=14, fontweight="bold")
+# ════════════════════════════════════════════════════════════════════
+# ABLATION 4 — Natural style-shift norm by layer (method diagnostic)
+# ════════════════════════════════════════════════════════════════════
+fig, ax = plt.subplots(figsize=(7, 5))
+norms = (df[df.technique.isin(["dom", "aas"])]
+         .drop_duplicates(subset=["model_short", "layer_pct"])
+         [["model_short", "layer_pct", "steering_vector_norm"]])
+for m in MODEL_ORDER:
+    d = norms[norms.model_short == m].sort_values("layer_pct")
+    ax.plot(d.layer_pct, d.steering_vector_norm, "-o", color=MODEL_C[m], label=m, lw=2)
+ax.set_xticks([25, 50, 75])
+ax.set_xlabel("Steering layer (% of depth)")
+ax.set_ylabel("Natural style-shift norm ‖μ⁺−μ⁻‖")
+ax.set_title("Ablation: per-layer style-shift magnitude (motivates norm-relative coeffs)")
+ax.legend(frameon=False)
 fig.tight_layout()
-fig.savefig(OUT_DIR / "by_category.png", dpi=150, bbox_inches="tight")
+fig.savefig(OUT_DIR / "fig_ablation_4_norms.png")
 plt.close(fig)
-print("Saved by_category.png")
+print("saved fig_ablation_4_norms.png")
 
-# ── Plot 5: Overall model × technique effectiveness summary ───────
-fig, ax = plt.subplots(figsize=(10, 6))
 
-summary2 = df_clean.groupby(["model_short", "technique", "coefficient"]).apply(brainrot_rate).reset_index()
+# ════════════════════════════════════════════════════════════════════
+# Paper tables (text)
+# ════════════════════════════════════════════════════════════════════
+lines = []
+def w(s=""): lines.append(s)
 
-models = sorted(summary2["model_short"].unique())
-techniques = ["dom", "pca", "aas"]
-colors = {"dom": "#e41a1c", "pca": "#377eb8", "aas": "#4daf4a"}
-
-x = np.arange(len(models))
-width = 0.25
-
-for i, tech in enumerate(techniques):
-    rates = []
-    for m in models:
-        d = summary2[(summary2["model_short"] == m) & (summary2["technique"] == tech) &
-                     (summary2["coefficient"] > 0)]
-        r = d["brainrot_rate"].mean() if not d.empty else 0
-        rates.append(r)
-    ax.bar(x + (i - 1) * width, rates, width, label=TECHNIQUE_LABEL[tech], color=colors[tech])
-
-ax.set_xticks(x)
-ax.set_xticklabels(models, fontsize=11)
-ax.set_ylabel("Mean Brainrot Rate (positive coeffs)")
-ax.set_title("Model × Technique Effectiveness — Positive Steering Only (clean)", fontsize=13, fontweight="bold")
-ax.legend()
-ax.grid(True, alpha=0.3, axis="y")
-
-fig.tight_layout()
-fig.savefig(OUT_DIR / "model_technique_summary.png", dpi=150, bbox_inches="tight")
-plt.close(fig)
-print("Saved model_technique_summary.png")
-
-# ── Plot 6: Steering vector norm analysis ─────────────────────────
-fig, axes = plt.subplots(1, 3, figsize=(18, 5))
-
-for idx, model_full in enumerate(MODEL_SHORT):
-    model_short = MODEL_SHORT[model_full]
-    ax = axes[idx]
-    subset = df_clean[df_clean["model_name"] == model_full].drop_duplicates(
-        subset=["technique", "layer_pct", "steering_vector_norm"])[
-        ["technique", "layer_pct", "steering_vector_norm"]
-    ]
-
-    for tech, marker in zip(["dom", "pca", "aas"], ["o", "s", "D"]):
-        d = subset[subset["technique"] == tech].sort_values("layer_pct")
-        ax.plot(d["layer_pct"], d["steering_vector_norm"], marker=marker, label=TECHNIQUE_LABEL[tech], linewidth=1.5)
-
-    ax.set_title(model_short, fontsize=12, fontweight="bold")
-    ax.set_xlabel("Layer %")
-    if idx == 0:
-        ax.set_ylabel("Natural style-shift norm")
-    ax.legend()
-    ax.grid(True, alpha=0.3)
-
-fig.suptitle("Natural Style-Shift Norm by Layer %", fontsize=14, fontweight="bold")
-fig.tight_layout()
-fig.savefig(OUT_DIR / "vector_norms.png", dpi=150, bbox_inches="tight")
-plt.close(fig)
-print("Saved vector_norms.png")
-
-# ── Plot 7: Degeneracy rate by model × coefficient ────────────────
-fig, axes = plt.subplots(1, 3, figsize=(18, 5))
-
-for idx, model_full in enumerate(MODEL_SHORT):
-    model_short = MODEL_SHORT[model_full]
-    ax = axes[idx]
-    subset = df_all[df_all["model_name"] == model_full]
-
-    degen_data = []
-    for t in ["dom", "pca", "aas"]:
-        for coeff in sorted(subset["coefficient"].unique()):
-            d = subset[(subset["technique"] == t) & (subset["coefficient"] == coeff)]
-            if len(d) > 0:
-                degen_rate = d["degenerate"].sum() / len(d)
-                degen_data.append({"technique": t, "coefficient": coeff, "degenerate_rate": degen_rate})
-
-    degen_df = pd.DataFrame(degen_data)
-    for t, marker in zip(["dom", "pca", "aas"], ["o", "s", "D"]):
-        d = degen_df[degen_df["technique"] == t].sort_values("coefficient")
-        ax.plot(d["coefficient"], d["degenerate_rate"] * 100, marker=marker,
-                label=TECHNIQUE_LABEL[t], linewidth=1.5)
-
-    ax.set_title(model_short, fontsize=12, fontweight="bold")
-    ax.set_xlabel("Coefficient")
-    if idx == 0:
-        ax.set_ylabel("Degeneracy Rate (%)")
-    ax.legend(fontsize=8)
-    ax.grid(True, alpha=0.3)
-
-fig.suptitle("Response Degeneracy Rate by Coefficient (higher = more broken output)", fontsize=14, fontweight="bold")
-fig.tight_layout()
-fig.savefig(OUT_DIR / "degeneracy.png", dpi=150, bbox_inches="tight")
-plt.close(fig)
-print("Saved degeneracy.png")
-
-print(f"\nAll plots saved to {OUT_DIR.resolve()}/")
+w("KEY NUMBERS FOR PAPER")
+w("=" * 60)
+w(f"Total generations (deduped): {len(df)}  | configs: {len(df)//600}")
+w(f"Overall: brainrot={df.br.mean()*100:.1f}%  incoherent={df.inc.mean()*100:.1f}%  "
+  f"coherent-brainrot={df.cb.mean()*100:.1f}%")
+w("")
+w("Coherent-brainrot by model (positive coeffs):")
+for m in MODEL_ORDER:
+    p, lo, hi, n = rate_ci(POS[POS.model_short == m]["cb"])
+    w(f"  {m:14s} {p*100:5.1f}%  [{lo*100:.1f}-{hi*100:.1f}]  (n={n})")
+w("Coherent-brainrot by technique (positive coeffs):")
+for t in TECHS:
+    p, lo, hi, n = rate_ci(POS[POS.technique == t]["cb"])
+    w(f"  {TECH_LABEL[t]:5s} {p*100:5.1f}%  [{lo*100:.1f}-{hi*100:.1f}]  (n={n})")
+w("Coherent-brainrot by layer (positive coeffs):")
+for lp in (25, 50, 75):
+    p, lo, hi, n = rate_ci(POS[POS.layer_pct == lp]["cb"])
+    w(f"  L{lp}%  {p*100:5.1f}%  [{lo*100:.1f}-{hi*100:.1f}]  (n={n})")
+w("")
+w("TOP 15 configurations by coherent-brainrot rate:")
+cfg = (POS.groupby(["model_short", "technique", "layer_pct", "coefficient"])
+       .agg(cb=("cb", "mean"), br=("br", "mean"), inc=("inc", "mean"), n=("cb", "size"))
+       .reset_index().sort_values("cb", ascending=False))
+w(f"  {'model':14s} {'tech':4s} {'layer':5s} {'coeff':>6s} {'cb%':>6s} {'br%':>6s} {'inc%':>6s}")
+for _, r in cfg.head(15).iterrows():
+    w(f"  {r.model_short:14s} {TECH_LABEL[r.technique]:4s} L{int(r.layer_pct):<4d} "
+      f"{r.coefficient:>6g} {r.cb*100:6.1f} {r.br*100:6.1f} {r.inc*100:6.1f}")
+(Path("paper_tables.txt")).write_text("\n".join(lines), encoding="utf-8")
+print("saved paper_tables.txt")
+print("\nAll figures in", OUT_DIR.resolve())
